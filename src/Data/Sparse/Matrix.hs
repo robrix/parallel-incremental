@@ -75,3 +75,23 @@ Q a11 a12 a21 a22 `mult` Q b11 b12 b21 b22
 
 instance (Eq a, Semiring a) => Semiring (M z z a) where
   (><) = mult
+
+
+v :: (Eq a, Semiring a) => M x x a -> M y x a -> M y y a -> M y x a
+v _ Z _ = Z
+v Z x Z = x
+v (Q a11 a12 _ a22) (Q x11 x12 x21 x22) (Q b11 b12 _ b22)
+  = q y11 y12
+      y21 y22
+  where y11 = v a11 (x11 <> a12 `mult` y21)                   b11
+        y12 = v a11 (x12 <> a12 `mult` y22 <> y11 `mult` b12) b22
+        y21 = v a22  x21                                      b11
+        y22 = v a22 (x22 <>                   y21 `mult` b12) b22
+v Z     x@Q{} b@Q{} = v q0 x b
+v a@Q{} x@Q{} Z     = v a  x q0
+v (Q a11 a12 _ a22) (C x11 x21) Z = c y11 y21
+  where y21 = v a22 x21 Z
+        y11 = v a11 (a12 `mult` y21 <> x11) Z
+v Z (R x11 x12) (Q b11 b12 _ b22) = r y11 y12
+  where y11 = v Z x11 b11
+        y12 = v Z (y11 `mult` b12 <> x12) b22
