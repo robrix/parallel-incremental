@@ -16,3 +16,8 @@ instance Foldable (V s) where
   foldMap _ Z = mempty
   foldMap f (O a) = f a
   foldMap f (B v1 v2) = foldMap f v1 `mappend` foldMap f v2
+
+instance Functor (V s) where
+  fmap _ Z = Z
+  fmap f (O a) = O (f a)
+  fmap f (B v1 v2) = B (fmap f v1) (fmap f v2)
