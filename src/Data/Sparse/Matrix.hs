@@ -48,7 +48,7 @@ c a11 a21 = C a11 a21
 
 fromVec :: V.V s a -> M s s a
 fromVec V.Z = Z
-fromVec (V.O a) = O a
+fromVec (V.L a) = O a
 fromVec (V.B v1 v2) = q (fromVec v1) Z Z (fromVec v2)
 
 
