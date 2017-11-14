@@ -49,3 +49,7 @@ instance (Eq a, Monoid a, Semigroup a) => Semigroup (M x y a) where
   Q a11 a12 a21 a22 <> Q b11 b12 b21 b22
     = q (a11 <> b11) (a12 <> b12)
         (a21 <> b21) (a22 <> b22)
+
+instance (Eq a, Monoid a, Semigroup a) => Monoid (M x y a) where
+  mempty = Z
+  mappend = (<>)
