@@ -18,6 +18,11 @@ data M s1 s2 a where
 deriving instance Eq a   => Eq   (M s1 s2 a)
 deriving instance Show a => Show (M s1 s2 a)
 
+data SomeM a where
+  SomeM :: M x y a -> SomeM a
+
+deriving instance Show a => Show (SomeM a)
+
 z :: M x y a
 z = Z
 
