@@ -13,6 +13,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Data.Semiring
+                     , Data.Sparse.Matrix
                      , Data.Sparse.Shape
                      , Data.Sparse.Vector
   build-depends:       base >=4.10 && <4.11
