@@ -2,6 +2,7 @@
 module Data.Sparse.Matrix where
 
 import Data.Semigroup
+import Data.Semiring
 import Data.Sparse.Shape
 import qualified Data.Sparse.Vector as V
 
@@ -53,3 +54,24 @@ instance (Eq a, Monoid a, Semigroup a) => Semigroup (M x y a) where
 instance (Eq a, Monoid a, Semigroup a) => Monoid (M x y a) where
   mempty = Z
   mappend = (<>)
+
+infixr 7 `mult`
+
+mult :: (Eq a, Semiring a) => M x y a -> M z x a -> M z y a
+Z `mult` _ = Z
+_ `mult` Z = Z
+O x `mult` O y = o (x >< y)
+O x `mult` R a11 a12 = r (O x `mult` a11) (O x `mult` a12)
+C a11 a21 `mult` O x = c (a11 `mult` O x) (a21 `mult` O x)
+R a11 a12 `mult` C b11 b21 = a11 `mult` b11 <> a12 `mult` b21
+C a11 a21 `mult` R b11 b12
+  = q (a11 `mult` b11) (a11 `mult` b12)
+      (a21 `mult` b11) (a21 `mult` b12)
+R a11 a12 `mult` Q b11 b12 b21 b22 = r (a11 `mult` b11 <> a12 `mult` b21) (a11 `mult` b12 <> a12 `mult` b22)
+Q a11 a12 a21 a22 `mult` C b11 b21 = c (a11 `mult` b11 <> a12 `mult` b21) (a21 `mult` b11 <> a22 `mult` b21)
+Q a11 a12 a21 a22 `mult` Q b11 b12 b21 b22
+  = q (a11 `mult` b11 <> a12 `mult` b21) (a11 `mult` b12 <> a12 `mult` b22)
+      (a21 `mult` b11 <> a22 `mult` b21) (a21 `mult` b12 <> a22 `mult` b22)
+
+instance (Eq a, Semiring a) => Semiring (M z z a) where
+  (><) = mult
