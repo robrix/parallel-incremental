@@ -6,7 +6,7 @@ import Data.Semiring
 import Data.Sparse.Shape
 import qualified Data.Sparse.Vector as V
 
-data M s1 s2 a where
+data M x y a where
   Z :: M x y a
   O :: a -> M 'L 'L a
   R :: M x1 'L a -> M x2 'L a -> M ('B x1 x2) 'L a
@@ -15,8 +15,8 @@ data M s1 s2 a where
     -> M x1 y2 a -> M x2 y2 a
     -> M ('B x1 x2) ('B y1 y2) a
 
-deriving instance Eq a   => Eq   (M s1 s2 a)
-deriving instance Show a => Show (M s1 s2 a)
+deriving instance Eq a   => Eq   (M x y a)
+deriving instance Show a => Show (M x y a)
 
 data SomeM a where
   SomeM :: M x y a -> SomeM a
