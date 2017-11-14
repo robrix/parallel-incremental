@@ -10,3 +10,9 @@ data V s a where
 
 deriving instance Eq a   => Eq   (V s a)
 deriving instance Show a => Show (V s a)
+
+
+instance Foldable (V s) where
+  foldMap _ Z = mempty
+  foldMap f (O a) = f a
+  foldMap f (B v1 v2) = foldMap f v1 `mappend` foldMap f v2
