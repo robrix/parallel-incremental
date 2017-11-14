@@ -41,6 +41,12 @@ c Z Z = Z
 c a11 a21 = C a11 a21
 
 
+fromVec :: V.V s a -> M s s a
+fromVec V.Z = Z
+fromVec (V.O a) = O a
+fromVec (V.B v1 v2) = q (fromVec v1) Z Z (fromVec v2)
+
+
 instance (Eq a, Monoid a, Semigroup a) => Semigroup (M x y a) where
   Z <> x = x
   x <> Z = x
