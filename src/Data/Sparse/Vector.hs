@@ -16,6 +16,16 @@ data SomeV a where
 
 deriving instance Show a => Show (SomeV a)
 
+fromList :: [a] -> SomeV a
+fromList [] = error "fromList: empty list"
+fromList as = fromList' (length as) as
+  where fromList' 1 [x] = SomeV $ O x
+        fromList' n xs  = case (fromList' n1 as, fromList' n2 bs) of
+          (SomeV as', SomeV bs') -> SomeV (B as' bs')
+          where n1 = n `div` 2
+                n2 = n - n1
+                (as, bs) = splitAt n1 xs
+
 
 instance Foldable (V s) where
   foldMap _ Z = mempty
