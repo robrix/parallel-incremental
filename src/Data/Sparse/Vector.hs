@@ -26,3 +26,9 @@ instance Functor (V s) where
   fmap _ Z = Z
   fmap f (O a) = O (f a)
   fmap f (B v1 v2) = B (fmap f v1) (fmap f v2)
+
+instance Eq a => Eq (SomeV a) where
+  SomeV Z == SomeV Z = True
+  SomeV (O a) == SomeV (O b) = a == b
+  SomeV (B a1 a2) == SomeV (B b1 b2) = SomeV a1 == SomeV b1 && SomeV a2 == SomeV b2
+  _ == _ = False
