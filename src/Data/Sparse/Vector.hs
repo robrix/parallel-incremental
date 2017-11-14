@@ -11,6 +11,11 @@ data V s a where
 deriving instance Eq a   => Eq   (V s a)
 deriving instance Show a => Show (V s a)
 
+data SomeV a where
+  SomeV :: V s a -> SomeV a
+
+deriving instance Show a => Show (SomeV a)
+
 
 instance Foldable (V s) where
   foldMap _ Z = mempty
