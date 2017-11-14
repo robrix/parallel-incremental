@@ -1,0 +1,19 @@
+name:                parallel-incremental
+version:             0.0.0.0
+synopsis:            Parallel and incremental data.
+homepage:            https://github.com/robrix/parallel-incremental
+license:             BSD3
+license-file:        LICENSE
+author:              Rob Rix
+maintainer:          rob.rix@me.com
+copyright:           2017 Rob Rix
+category:            Data
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Data.Semiring
+  build-depends:       base >=4.10 && <4.11
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall -fno-warn-name-shadowing
