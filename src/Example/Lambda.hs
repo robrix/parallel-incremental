@@ -15,3 +15,6 @@ name = token ((:) <$> letter <*> many alphaNum)
 
 abs' :: TokenParsing m => m Lam -> m Lam
 abs' lam = parens (Abs <$ symbolic '\\' <*> name <* dot <*> lam) <?> "abstraction"
+
+app :: TokenParsing m => m Lam -> m Lam
+app lam = parens (App <$> lam <*> lam) <?> "application"
