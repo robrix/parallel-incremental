@@ -13,7 +13,6 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Data.Grammar
-                     , Data.Rec
                      , Data.Semiring
                      , Data.Sparse.Matrix
                      , Data.Sparse.Shape

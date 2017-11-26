@@ -4,7 +4,6 @@ module Text.Parser.RecursiveDescent where
 import Data.Bifunctor
 import Data.Grammar
 import Data.List (intercalate)
-import Data.Rec
 import Unsafe.Coerce (unsafeCoerce)
 
 type State t = [t]
