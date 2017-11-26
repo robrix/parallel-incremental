@@ -16,3 +16,7 @@ instance Functor (Grammar s) where
 instance Applicative (Grammar s) where
   pure = Nul
   liftA2 = Seq
+
+instance Alternative (Grammar s) where
+  empty = Empty
+  (<|>) = Alt
