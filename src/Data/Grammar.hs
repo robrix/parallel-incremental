@@ -4,7 +4,7 @@ module Data.Grammar where
 import Control.Applicative
 
 data Grammar n s a where
-  Empty :: Grammar n s a
+  Err :: [String] -> Grammar n s a
   Nul :: a -> Grammar n s a
   Lit :: s -> Grammar n s s
   Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
@@ -33,5 +33,5 @@ instance Applicative (Grammar n s) where
   liftA2 = Seq
 
 instance Alternative (Grammar n s) where
-  empty = Empty
+  empty = Err []
   (<|>) = Alt
