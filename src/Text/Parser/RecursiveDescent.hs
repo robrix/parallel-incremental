@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 module Text.Parser.RecursiveDescent where
 
 import Data.List (intercalate)
@@ -16,3 +17,6 @@ formatExpectation [] = "eof"
 formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
+
+data Binding s where
+  Binding :: (State s -> Either (Error s) (a, State s)) -> Binding s
