@@ -4,44 +4,43 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
+import Data.Rec
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Recursive
 import Text.Parser.Token
 
-data Grammar n t a where
-  Err :: [String] -> Grammar n t a
-  Nul :: a -> Grammar n t a
-  Sat :: (t -> Bool) -> Grammar n t t
-  Alt :: Grammar n t a -> Grammar n t a -> Grammar n t a
-  Seq :: (a -> b -> c) -> Grammar n t a -> Grammar n t b -> Grammar n t c
-  Lab :: Grammar n t a -> String -> Grammar n t a
-  End :: Grammar n t ()
-  Var :: n a -> Grammar n t a
-  Rec :: (n a -> Grammar n t a) -> Grammar n t a
+data Grammar t r a where
+  Err :: [String] -> Grammar t r a
+  Nul :: a -> Grammar t r a
+  Sat :: (t -> Bool) -> Grammar t r t
+  Alt :: r a -> r a -> Grammar t r a
+  Seq :: (a -> b -> c) -> r a -> r b -> Grammar t r c
+  Lab :: r a -> String -> Grammar t r a
+  End :: Grammar t r ()
 
-instance Functor (Grammar n t) where
+instance Functor (Rec (Grammar t) n) where
   fmap = liftA
 
-instance Applicative (Grammar n t) where
-  pure = Nul
-  liftA2 = Seq
+instance Applicative (Rec (Grammar t) n) where
+  pure = In . Nul
+  liftA2 f a b = In (Seq f a b)
 
-instance Alternative (Grammar n t) where
-  empty = Err []
-  (<|>) = Alt
+instance Alternative (Rec (Grammar t) n) where
+  empty = In (Err [])
+  a <|> b = In (Alt a b)
 
-instance Parsing (Grammar n t) where
+instance Parsing (Rec (Grammar t) n) where
   try = id
-  (<?>) = Lab
-  eof = End
-  unexpected s = Err [s]
+  a <?> s = In (Lab a s)
+  eof = In End
+  unexpected s = In (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance RecursiveParsing (Grammar n t) where
+instance RecursiveParsing (Rec (Grammar t) n) where
   mu f = Rec (f . Var)
 
-instance CharParsing (Grammar n Char) where
-  satisfy = Sat
+instance CharParsing (Rec (Grammar Char) n) where
+  satisfy = In . Sat
 
-instance TokenParsing (Grammar n Char)
+instance TokenParsing (Rec (Grammar Char) n)

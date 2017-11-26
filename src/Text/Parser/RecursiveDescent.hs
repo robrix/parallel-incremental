@@ -4,34 +4,35 @@ module Text.Parser.RecursiveDescent where
 import Data.Bifunctor
 import Data.Grammar
 import Data.List (intercalate)
+import Data.Rec
 import Unsafe.Coerce (unsafeCoerce)
 
 type State t = [t]
 type Error t = ([String], State t)
 
-runGrammar :: (Eq t, Show t) => (forall n . Grammar n t a) -> State t -> Either String a
+runGrammar :: (Eq t, Show t) => (forall n . Rec (Grammar t) n a) -> State t -> Either String a
 runGrammar grammar cs = first formatError $ do
   (a, cs) <- go mempty grammar cs
   if null cs then
     Right a
   else
     Left  (["eof"], cs)
-  where go :: (Eq t, Show t) => Env t -> Grammar Name t a -> State t -> Either (Error t) (a, State t)
-        go _ (Err es) cs = Left (es, cs)
-        go _ (Nul a) cs = Right (a, cs)
-        go _ (Sat p) cs
-          | c:cs' <- cs, p c = Right (c, cs')
-          | otherwise        = Left  ([], cs)
-        go env (Alt a b) cs = either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (go env b cs)) Right (go env a cs)
-        go env (Seq f a b) cs = do
-          (a', cs')  <- go env a cs
-          let fa = f a'
-          (b', cs'') <- fa `seq` go env b cs'
-          let fab = fa b'
-          fab `seq` Right (fab, cs'')
-        go env (Lab a s) cs = first (\ (_, cs) -> ([s], cs)) (go env a cs)
-        go _   End [] = Right ((), [])
-        go _   End cs = Left  (["eof"], cs)
+  where go :: (Eq t, Show t) => Env t -> Rec (Grammar t) Name a -> State t -> Either (Error t) (a, State t)
+        go env (In g) cs = case g of
+          Err es -> Left (es, cs)
+          Nul a -> Right (a, cs)
+          Sat p | c:cs' <- cs, p c -> Right (c, cs')
+                | otherwise        -> Left  ([], cs)
+          Alt a b -> either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (go env b cs)) Right (go env a cs)
+          Seq f a b -> do
+            (a', cs')  <- go env a cs
+            let fa = f a'
+            (b', cs'') <- fa `seq` go env b cs'
+            let fab = fa b'
+            fab `seq` Right (fab, cs'')
+          Lab a s -> first (\ (_, cs) -> ([s], cs)) (go env a cs)
+          End | [] <- cs  -> Right ((), [])
+              | otherwise -> Left  (["eof"], cs)
         go env (Var v) cs = (env ! v) cs
         go env (Rec r) cs = let (name, env') = extend (go env (Rec r)) env in go env' (r name) cs
 
