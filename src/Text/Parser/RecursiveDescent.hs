@@ -1,12 +1,40 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, RankNTypes #-}
 module Text.Parser.RecursiveDescent where
 
+import Data.Bifunctor
 import Data.Functor.Const
+import Data.Grammar
 import Data.List (intercalate)
 import Unsafe.Coerce (unsafeCoerce)
 
 type State s = [s]
 type Error s = ([String], State s)
+
+runGrammar :: (Eq s, Show s) => (forall n . Grammar n s a) -> State s -> Either String a
+runGrammar grammar cs = first formatError $ do
+  (a, cs) <- go [] grammar cs
+  if null cs then
+    Right a
+  else
+    Left  (["eof"], cs)
+  where go :: (Eq s, Show s) => [Binding s] -> Grammar (Const Int) s a -> State s -> Either (Error s) (a, State s)
+        go _ (Err es) cs = Left (es, cs)
+        go _ (Nul a) cs = Right (a, cs)
+        go _ (Sat p) cs
+          | c:cs' <- cs, p c = Right (c, cs')
+          | otherwise        = Left  ([], cs)
+        go env (Alt a b) cs = either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (go env b cs)) Right (go env a cs)
+        go env (Seq f a b) cs = do
+          (a', cs')  <- go env a cs
+          let fa = f a'
+          (b', cs'') <- fa `seq` go env b cs'
+          let fab = fa b'
+          fab `seq` Right (fab, cs'')
+        go env (Lab a s) cs = first (\ (_, cs) -> ([s], cs)) (go env a cs)
+        go _   End [] = Right ((), [])
+        go _   End cs = Left  (["eof"], cs)
+        go env (Var v) cs = (env ! v) cs
+        go env (Rec r) cs = go (env ++ [Binding (go env (Rec r))]) (r (Const (length env))) cs
 
 formatError :: Show s => Error s -> String
 formatError ([], []) = "no rule to match at eof"
