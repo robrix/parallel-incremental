@@ -22,6 +22,7 @@ library
                      , Text.Parser.Deterministic
                      , Text.Parser.Recursive
                      , Text.Parser.RecursiveDescent
+                     , Text.Parser.Valiant
   build-depends:       base >=4.10 && <4.11
                      , parsers
   hs-source-dirs:      src
