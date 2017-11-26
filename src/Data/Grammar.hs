@@ -9,36 +9,36 @@ import Text.Parser.Combinators
 import Text.Parser.Recursive
 import Text.Parser.Token
 
-data Grammar n s a where
-  Err :: [String] -> Grammar n s a
-  Nul :: a -> Grammar n s a
-  Sat :: (s -> Bool) -> Grammar n s s
-  Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
-  Seq :: (a -> b -> c) -> Grammar n s a -> Grammar n s b -> Grammar n s c
-  Lab :: Grammar n s a -> String -> Grammar n s a
-  End :: Grammar n s ()
-  Var :: n a -> Grammar n s a
-  Rec :: (n a -> Grammar n s a) -> Grammar n s a
+data Grammar n t a where
+  Err :: [String] -> Grammar n t a
+  Nul :: a -> Grammar n t a
+  Sat :: (t -> Bool) -> Grammar n t t
+  Alt :: Grammar n t a -> Grammar n t a -> Grammar n t a
+  Seq :: (a -> b -> c) -> Grammar n t a -> Grammar n t b -> Grammar n t c
+  Lab :: Grammar n t a -> String -> Grammar n t a
+  End :: Grammar n t ()
+  Var :: n a -> Grammar n t a
+  Rec :: (n a -> Grammar n t a) -> Grammar n t a
 
-instance Functor (Grammar n s) where
+instance Functor (Grammar n t) where
   fmap = liftA
 
-instance Applicative (Grammar n s) where
+instance Applicative (Grammar n t) where
   pure = Nul
   liftA2 = Seq
 
-instance Alternative (Grammar n s) where
+instance Alternative (Grammar n t) where
   empty = Err []
   (<|>) = Alt
 
-instance Parsing (Grammar n s) where
+instance Parsing (Grammar n t) where
   try = id
   (<?>) = Lab
   eof = End
   unexpected s = Err [s]
   notFollowedBy a = a *> empty <|> pure ()
 
-instance RecursiveParsing (Grammar n s) where
+instance RecursiveParsing (Grammar n t) where
   mu f = Rec (f . Var)
 
 instance CharParsing (Grammar n Char) where
