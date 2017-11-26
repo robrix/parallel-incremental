@@ -18,6 +18,7 @@ library
                      , Data.Sparse.Shape
                      , Data.Sparse.Vector
                      , Data.Sparse.Volume
+                     , Text.Parser.RecursiveDescent
   build-depends:       base >=4.10 && <4.11
                      , parsers
   hs-source-dirs:      src
