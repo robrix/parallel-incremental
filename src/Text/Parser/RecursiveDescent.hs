@@ -8,6 +8,7 @@ import Data.List (intercalate)
 import Unsafe.Coerce (unsafeCoerce)
 
 type State s = [s]
+type Env s = [Binding s]
 type Error s = ([String], State s)
 
 runGrammar :: (Eq s, Show s) => (forall n . Grammar n s a) -> State s -> Either String a
@@ -17,7 +18,7 @@ runGrammar grammar cs = first formatError $ do
     Right a
   else
     Left  (["eof"], cs)
-  where go :: (Eq s, Show s) => [Binding s] -> Grammar (Const Int) s a -> State s -> Either (Error s) (a, State s)
+  where go :: (Eq s, Show s) => Env s -> Grammar (Const Int) s a -> State s -> Either (Error s) (a, State s)
         go _ (Err es) cs = Left (es, cs)
         go _ (Nul a) cs = Right (a, cs)
         go _ (Sat p) cs
@@ -51,7 +52,7 @@ formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
 data Binding s where
   Binding :: (State s -> Either (Error s) (a, State s)) -> Binding s
 
-(!) :: [Binding s] -> Const Int a -> State s -> Either (Error s) (a, State s)
+(!) :: Env s -> Const Int a -> State s -> Either (Error s) (a, State s)
 (env ! Const n) s = go env n n s
   where go (Binding b : env) n n' s
           | n == 0    = unsafeCoerce (b s)
