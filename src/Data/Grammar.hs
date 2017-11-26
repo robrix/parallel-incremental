@@ -2,6 +2,7 @@
 module Data.Grammar where
 
 import Control.Applicative
+import Text.Parser.Combinators
 
 data Grammar n s a where
   Err :: [String] -> Grammar n s a
@@ -17,11 +18,6 @@ data Grammar n s a where
 sym :: [s] -> Grammar n s [s]
 sym = traverse Lit
 
-(<?>) :: Grammar n s a -> String -> Grammar n s a
-(<?>) = Lab
-
-infixr 0 <?>
-
 mu :: (forall n . Grammar n s a -> Grammar n s a) -> Grammar n' s a
 mu f = Rec (f . Var)
 
@@ -35,3 +31,10 @@ instance Applicative (Grammar n s) where
 instance Alternative (Grammar n s) where
   empty = Err []
   (<|>) = Alt
+
+instance Parsing (Grammar n s) where
+  try = id
+  (<?>) = Lab
+  eof = End
+  unexpected s = Err [s]
+  notFollowedBy a = a *> empty <|> pure ()

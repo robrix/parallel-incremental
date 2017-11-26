@@ -19,6 +19,7 @@ library
                      , Data.Sparse.Vector
                      , Data.Sparse.Volume
   build-depends:       base >=4.10 && <4.11
+                     , parsers
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall -fno-warn-name-shadowing
