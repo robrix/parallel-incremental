@@ -41,4 +41,4 @@ instance Parsing (Grammar n s) where
 instance CharParsing (Grammar n Char) where
   satisfy = Sat
 
-instance TokenParsing (Grammar n Char) where
+instance TokenParsing (Grammar n Char)
