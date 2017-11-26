@@ -1,11 +1,16 @@
 module Example.Lambda where
 
+import Control.Applicative
+import Data.Grammar hiding (Var)
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
 
 data Lam = Abs String Lam | App Lam Lam | Var String
   deriving (Eq, Show)
+
+lam :: Grammar n Char Lam
+lam = mu (\ lam -> var <|> abs' lam <|> app lam)
 
 var :: TokenParsing m => m Lam
 var = Var <$> name <?> "variable"
