@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, RankNTypes #-}
+{-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes #-}
 module Text.Parser.RecursiveDescent where
 
 import Data.Bifunctor
@@ -7,12 +7,11 @@ import Data.List (intercalate)
 import Unsafe.Coerce (unsafeCoerce)
 
 type State s = [s]
-type Env s = [Binding s]
 type Error s = ([String], State s)
 
 runGrammar :: (Eq s, Show s) => (forall n . Grammar n s a) -> State s -> Either String a
 runGrammar grammar cs = first formatError $ do
-  (a, cs) <- go [] grammar cs
+  (a, cs) <- go mempty grammar cs
   if null cs then
     Right a
   else
@@ -34,7 +33,7 @@ runGrammar grammar cs = first formatError $ do
         go _   End [] = Right ((), [])
         go _   End cs = Left  (["eof"], cs)
         go env (Var v) cs = (env ! v) cs
-        go env (Rec r) cs = go (env ++ [Binding (go env (Rec r))]) (r (Name (length env))) cs
+        go env (Rec r) cs = go (env `mappend` Env [Binding (go env (Rec r))]) (r (Name (length (getEnv env)))) cs
 
 formatError :: Show s => Error s -> String
 formatError ([], []) = "no rule to match at eof"
@@ -48,6 +47,9 @@ formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
 
+newtype Env s = Env { getEnv :: [Binding s] }
+  deriving (Monoid)
+
 data Binding s where
   Binding :: (State s -> Either (Error s) (a, State s)) -> Binding s
 
@@ -55,7 +57,7 @@ newtype Name a = Name { getName :: Int }
   deriving (Eq, Show)
 
 (!) :: Env s -> Name a -> State s -> Either (Error s) (a, State s)
-(env ! Name n) s = go env n n s
+(Env env ! Name n) s = go env n n s
   where go (Binding b : env) n n' s
           | n == 0    = unsafeCoerce (b s)
           | otherwise = go env (pred n) n' s
