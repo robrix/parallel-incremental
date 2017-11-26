@@ -7,16 +7,13 @@ import Text.Parser.Combinators
 data Grammar n s a where
   Err :: [String] -> Grammar n s a
   Nul :: a -> Grammar n s a
-  Lit :: s -> Grammar n s s
+  Sat :: (s -> Bool) -> Grammar n s s
   Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
   Seq :: (a -> b -> c) -> Grammar n s a -> Grammar n s b -> Grammar n s c
   Lab :: Grammar n s a -> String -> Grammar n s a
   End :: Grammar n s ()
   Var :: n a -> Grammar n s a
   Rec :: (forall n . n a -> Grammar n s a) -> Grammar n' s a
-
-sym :: [s] -> Grammar n s [s]
-sym = traverse Lit
 
 mu :: (forall n . Grammar n s a -> Grammar n s a) -> Grammar n' s a
 mu f = Rec (f . Var)
