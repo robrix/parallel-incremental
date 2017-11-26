@@ -4,6 +4,7 @@ module Data.Grammar where
 import Control.Applicative
 import Text.Parser.Char
 import Text.Parser.Combinators
+import Text.Parser.Recursive
 import Text.Parser.Token
 
 data Grammar n s a where
@@ -15,10 +16,7 @@ data Grammar n s a where
   Lab :: Grammar n s a -> String -> Grammar n s a
   End :: Grammar n s ()
   Var :: n a -> Grammar n s a
-  Rec :: (forall n . n a -> Grammar n s a) -> Grammar n' s a
-
-mu :: (forall n . Grammar n s a -> Grammar n s a) -> Grammar n' s a
-mu f = Rec (f . Var)
+  Rec :: (n a -> Grammar n s a) -> Grammar n s a
 
 instance Functor (Grammar n s) where
   fmap = liftA
@@ -37,6 +35,9 @@ instance Parsing (Grammar n s) where
   eof = End
   unexpected s = Err [s]
   notFollowedBy a = a *> empty <|> pure ()
+
+instance RecursiveParsing (Grammar n s) where
+  mu f = Rec (f . Var)
 
 instance CharParsing (Grammar n Char) where
   satisfy = Sat
