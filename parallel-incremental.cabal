@@ -12,7 +12,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Semiring
+  exposed-modules:     Data.Grammar
+                     , Data.Semiring
                      , Data.Sparse.Matrix
                      , Data.Sparse.Shape
                      , Data.Sparse.Vector
