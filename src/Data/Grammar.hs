@@ -1,7 +1,8 @@
-{-# LANGUAGE GADTs, RankNTypes #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes #-}
 module Data.Grammar where
 
 import Control.Applicative
+import Text.Parser.Char
 import Text.Parser.Combinators
 
 data Grammar n s a where
@@ -35,3 +36,6 @@ instance Parsing (Grammar n s) where
   eof = End
   unexpected s = Err [s]
   notFollowedBy a = a *> empty <|> pure ()
+
+instance CharParsing (Grammar n Char) where
+  satisfy = Sat
