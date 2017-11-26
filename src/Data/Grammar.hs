@@ -4,6 +4,7 @@ module Data.Grammar where
 import Control.Applicative
 import Text.Parser.Char
 import Text.Parser.Combinators
+import Text.Parser.Token
 
 data Grammar n s a where
   Err :: [String] -> Grammar n s a
@@ -39,3 +40,5 @@ instance Parsing (Grammar n s) where
 
 instance CharParsing (Grammar n Char) where
   satisfy = Sat
+
+instance TokenParsing (Grammar n Char) where
