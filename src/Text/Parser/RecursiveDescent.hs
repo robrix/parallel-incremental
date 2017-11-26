@@ -6,17 +6,17 @@ import Data.Grammar
 import Data.List (intercalate)
 import Unsafe.Coerce (unsafeCoerce)
 
-type State s = [s]
-type Error s = ([String], State s)
+type State t = [t]
+type Error t = ([String], State t)
 
-runGrammar :: (Eq s, Show s) => (forall n . Grammar n s a) -> State s -> Either String a
+runGrammar :: (Eq t, Show t) => (forall n . Grammar n t a) -> State t -> Either String a
 runGrammar grammar cs = first formatError $ do
   (a, cs) <- go mempty grammar cs
   if null cs then
     Right a
   else
     Left  (["eof"], cs)
-  where go :: (Eq s, Show s) => Env s -> Grammar Name s a -> State s -> Either (Error s) (a, State s)
+  where go :: (Eq t, Show t) => Env t -> Grammar Name t a -> State t -> Either (Error t) (a, State t)
         go _ (Err es) cs = Left (es, cs)
         go _ (Nul a) cs = Right (a, cs)
         go _ (Sat p) cs
@@ -35,7 +35,7 @@ runGrammar grammar cs = first formatError $ do
         go env (Var v) cs = (env ! v) cs
         go env (Rec r) cs = let (name, env') = extend (go env (Rec r)) env in go env' (r name) cs
 
-formatError :: Show s => Error s -> String
+formatError :: Show t => Error t -> String
 formatError ([], []) = "no rule to match at eof"
 formatError ([], cs) = "no rule to match at " ++ show cs
 formatError (es, []) = "expected " ++ formatExpectation es ++ " at eof"
@@ -47,16 +47,16 @@ formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
 
-newtype Env s = Env { getEnv :: [Binding s] }
+newtype Env t = Env { getEnv :: [Binding t] }
   deriving (Monoid)
 
-data Binding s where
-  Binding :: (State s -> Either (Error s) (a, State s)) -> Binding s
+data Binding t where
+  Binding :: (State t -> Either (Error t) (a, State t)) -> Binding t
 
 newtype Name a = Name { getName :: Int }
   deriving (Eq, Show)
 
-(!) :: Env s -> Name a -> State s -> Either (Error s) (a, State s)
+(!) :: Env t -> Name a -> State t -> Either (Error t) (a, State t)
 (Env env ! Name n) s = go env n n s
   where go (Binding b : env) n n' s
           | n == 0    = unsafeCoerce (b s)
@@ -65,5 +65,5 @@ newtype Name a = Name { getName :: Int }
 
 infixl 0 !
 
-extend :: (State s -> Either (Error s) (a, State s)) -> Env s -> (Name a, Env s)
+extend :: (State t -> Either (Error t) (a, State t)) -> Env t -> (Name a, Env t)
 extend cont (Env bs) = (Name (length bs), Env (Binding cont : bs))
