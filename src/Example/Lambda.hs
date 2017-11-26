@@ -1,6 +1,5 @@
 module Example.Lambda where
 
-import Control.Applicative
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -13,3 +12,6 @@ var = Var <$> name <?> "variable"
 
 name :: TokenParsing m => m String
 name = token ((:) <$> letter <*> many alphaNum)
+
+abs' :: TokenParsing m => m Lam -> m Lam
+abs' lam = parens (Abs <$ symbolic '\\' <*> name <* dot <*> lam) <?> "abstraction"
