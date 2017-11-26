@@ -33,7 +33,7 @@ runGrammar grammar cs = first formatError $ do
         go _   End [] = Right ((), [])
         go _   End cs = Left  (["eof"], cs)
         go env (Var v) cs = (env ! v) cs
-        go env (Rec r) cs = go (env `mappend` Env [Binding (go env (Rec r))]) (r (Name (length (getEnv env)))) cs
+        go env (Rec r) cs = go (env `mappend` Env [Binding (go env (Rec r))]) (r (fresh env)) cs
 
 formatError :: Show s => Error s -> String
 formatError ([], []) = "no rule to match at eof"
@@ -64,3 +64,6 @@ newtype Name a = Name { getName :: Int }
         go [] _ n' _ = error ("(!): " ++ show n' ++ " out of bounds")
 
 infixl 0 !
+
+fresh :: Env s -> Name a
+fresh (Env bs) = Name (length bs)
