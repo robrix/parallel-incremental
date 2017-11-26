@@ -10,6 +10,9 @@ data Grammar n s a where
   Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
   Seq :: (a -> b -> c) -> Grammar n s a -> Grammar n s b -> Grammar n s c
 
+sym :: [s] -> Grammar n s [s]
+sym = traverse Lit
+
 instance Functor (Grammar n s) where
   fmap = liftA
 
