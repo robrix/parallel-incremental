@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleInstances, GADTs, RankNTypes #-}
-module Data.Grammar where
+module Data.Grammar
+( Grammar(..)
+) where
 
 import Control.Applicative
 import Text.Parser.Char
