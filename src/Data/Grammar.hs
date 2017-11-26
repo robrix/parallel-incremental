@@ -4,6 +4,7 @@ module Data.Grammar where
 import Control.Applicative
 
 data Grammar s a where
+  Empty :: Grammar s a
   Nul :: a -> Grammar s a
   Lit :: s -> Grammar s s
   Alt :: Grammar s a -> Grammar s a -> Grammar s a
