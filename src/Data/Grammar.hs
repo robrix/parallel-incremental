@@ -3,20 +3,20 @@ module Data.Grammar where
 
 import Control.Applicative
 
-data Grammar s n a where
-  Empty :: Grammar s n a
-  Nul :: a -> Grammar s n a
-  Lit :: s -> Grammar s n s
-  Alt :: Grammar s n a -> Grammar s n a -> Grammar s n a
-  Seq :: (a -> b -> c) -> Grammar s n a -> Grammar s n b -> Grammar s n c
+data Grammar n s a where
+  Empty :: Grammar n s a
+  Nul :: a -> Grammar n s a
+  Lit :: s -> Grammar n s s
+  Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
+  Seq :: (a -> b -> c) -> Grammar n s a -> Grammar n s b -> Grammar n s c
 
-instance Functor (Grammar s n) where
+instance Functor (Grammar n s) where
   fmap = liftA
 
-instance Applicative (Grammar s m) where
+instance Applicative (Grammar n s) where
   pure = Nul
   liftA2 = Seq
 
-instance Alternative (Grammar s n) where
+instance Alternative (Grammar n s) where
   empty = Empty
   (<|>) = Alt
