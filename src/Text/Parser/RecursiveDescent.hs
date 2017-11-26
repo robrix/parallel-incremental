@@ -52,6 +52,7 @@ data Binding s where
   Binding :: (State s -> Either (Error s) (a, State s)) -> Binding s
 
 newtype Name a = Name { getName :: Int }
+  deriving (Eq, Show)
 
 (!) :: Env s -> Name a -> State s -> Either (Error s) (a, State s)
 (env ! Name n) s = go env n n s
