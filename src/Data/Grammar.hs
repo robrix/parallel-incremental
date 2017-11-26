@@ -10,6 +10,7 @@ data Grammar n s a where
   Alt :: Grammar n s a -> Grammar n s a -> Grammar n s a
   Seq :: (a -> b -> c) -> Grammar n s a -> Grammar n s b -> Grammar n s c
   Lab :: Grammar n s a -> String -> Grammar n s a
+  End :: Grammar n s ()
   Var :: n a -> Grammar n s a
   Rec :: (forall n . n a -> Grammar n s a) -> Grammar n' s a
 
