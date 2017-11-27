@@ -6,6 +6,7 @@ module Data.Rec
 
 import Unsafe.Coerce
 
+-- | Lift a grammar @g@ indexed by types @a@ into a recursive grammar with nonterminals @n@.
 data Rec n g a where
   Var :: n a -> Rec n g a
   Rec :: (n a -> Rec n g a) -> Rec n g a
