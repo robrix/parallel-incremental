@@ -9,14 +9,14 @@ import Unsafe.Coerce (unsafeCoerce)
 type State t = [t]
 type Error t = ([String], State t)
 
-runGrammar :: (Eq t, Show t) => (forall n . Rec (Grammar t) n a) -> State t -> Either String a
+runGrammar :: Show t => (forall n . Rec (Grammar t) n a) -> State t -> Either String a
 runGrammar grammar cs = first formatError $ do
   (a, cs) <- runK (iterRec algebra grammar) cs
   if null cs then
     Right a
   else
     Left  (["eof"], cs)
-  where algebra :: (Eq t, Show t) => (forall a . r a -> K t a) -> Grammar t r a -> K t a
+  where algebra :: (forall a . r a -> K t a) -> Grammar t r a -> K t a
         algebra go g = K $ \ cs -> case g of
           Err es -> Left (es, cs)
           Nul a -> Right (a, cs)
