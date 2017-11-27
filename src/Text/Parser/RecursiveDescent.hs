@@ -57,9 +57,9 @@ newtype Name a = Name { getName :: Int }
   deriving (Eq, Show)
 
 (!) :: Env t -> Name a -> State t -> Either (Error t) (a, State t)
-(Env env ! Name n) s = go env n n s
+(Env env ! Name n) s = go env (pred (length env)) n s
   where go (Binding b : env) n n' s
-          | n == 0    = unsafeCoerce (b s)
+          | n == n'   = unsafeCoerce (b s)
           | otherwise = go env (pred n) n' s
         go [] _ n' _ = error ("(!): " ++ show n' ++ " out of bounds")
 
