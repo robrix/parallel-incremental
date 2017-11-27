@@ -1,11 +1,10 @@
 {-# LANGUAGE FlexibleInstances, GADTs, RankNTypes #-}
 module Data.Grammar
 ( Grammar(..)
-, Rec(..)
 ) where
 
 import Control.Applicative
-import Data.Rec
+import Data.Recursive
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -19,25 +18,25 @@ data Grammar t r a where
   Lab :: r a -> String -> Grammar t r a
   End :: Grammar t r ()
 
-instance Functor (Rec n (Grammar t)) where
+instance Embed r => Functor (r (Grammar t)) where
   fmap = liftA
 
-instance Applicative (Rec n (Grammar t)) where
-  pure = In . Nul
-  liftA2 f a b = In (Seq f a b)
+instance Embed r => Applicative (r (Grammar t)) where
+  pure = embed . Nul
+  liftA2 f a b = embed (Seq f a b)
 
-instance Alternative (Rec n (Grammar t)) where
-  empty = In (Err [])
-  a <|> b = In (Alt a b)
+instance Embed r => Alternative (r (Grammar t)) where
+  empty = embed (Err [])
+  a <|> b = embed (Alt a b)
 
-instance Parsing (Rec n (Grammar t)) where
+instance Embed r => Parsing (r (Grammar t)) where
   try = id
-  a <?> s = In (Lab a s)
-  eof = In End
-  unexpected s = In (Err [s])
+  a <?> s = embed (Lab a s)
+  eof = embed End
+  unexpected s = embed (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance CharParsing (Rec n (Grammar Char)) where
-  satisfy = In . Sat
+instance Embed r => CharParsing (r (Grammar Char)) where
+  satisfy = embed . Sat
 
-instance TokenParsing (Rec n (Grammar Char))
+instance Embed r => TokenParsing (r (Grammar Char))
