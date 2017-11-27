@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances, GADTs, MultiParamTypeClasses, RankNTypes, ScopedTypeVariables #-}
 module Data.Rec
 ( Rec(..)
 , iterRec
@@ -72,3 +72,6 @@ extend cont bs = (Name (length bs), Binding cont : bs)
 
 instance Recursive (Rec n g) where
   mu f = Mu (f . Var)
+
+instance Embed g (Rec n g) where
+  embed = In
