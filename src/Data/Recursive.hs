@@ -1,4 +1,3 @@
-{-# LANGUAGE FunctionalDependencies #-}
 module Data.Recursive
 ( Recursive(..)
 , Embed(..)
@@ -7,5 +6,5 @@ module Data.Recursive
 class Recursive m where
   mu :: (m a -> m a) -> m a
 
-class Embed f t | t -> f where
-  embed :: f t a -> t a
+class Embed t where
+  embed :: f (t f) a -> t f a

@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module Data.Fix where
 
 import Data.Function (fix)
@@ -9,5 +8,5 @@ newtype Fix f a = Fix { unFix :: f (Fix f) a }
 instance Recursive (Fix f) where
   mu = fix
 
-instance Embed f (Fix f) where
+instance Embed Fix where
   embed = Fix
