@@ -1,5 +1,7 @@
 {-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
-module Text.Parser.RecursiveDescent where
+module Text.Parser.RecursiveDescent
+( runGrammar
+) where
 
 import Data.Bifunctor
 import Data.Grammar
