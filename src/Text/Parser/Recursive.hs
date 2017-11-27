@@ -1,4 +1,6 @@
-module Text.Parser.Recursive where
+module Text.Parser.Recursive
+( RecursiveParsing(..)
+) where
 
 import Control.Applicative
 
