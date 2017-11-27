@@ -5,7 +5,6 @@ import Data.Bifunctor
 import Data.Grammar
 import Data.Rec
 import Data.List (intercalate)
-import Unsafe.Coerce (unsafeCoerce)
 
 type State t = [t]
 type Error t = ([String], State t)
@@ -36,22 +35,6 @@ runGrammar grammar cs = first formatError $ do
 
 newtype K t a = K { runK :: State t -> Either (Error t) (a, State t) }
 
-iterRec :: forall a b g
-        .  (  forall a r
-           .  (forall a . r a -> b a)
-           -> g r a
-           -> b a
-           )
-        -> (forall n . Rec g n a)
-        -> b a
-iterRec algebra = go mempty
-  where go :: Env b
-           -> Rec g Name r
-           -> b r
-        go env (In g) = algebra (go env) g
-        go env (Var v) = env ! v
-        go env (Rec r) = let (name, env') = extend (go env (Rec r)) env in go env' (r name)
-
 formatError :: Show t => Error t -> String
 formatError ([], []) = "no rule to match at eof"
 formatError ([], cs) = "no rule to match at " ++ show cs
@@ -63,24 +46,3 @@ formatExpectation [] = "eof"
 formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
-
-newtype Env t = Env { getEnv :: [Binding t] }
-  deriving (Monoid)
-
-data Binding b where
-  Binding :: b a -> Binding b
-
-newtype Name a = Name { getName :: Int }
-  deriving (Eq, Show)
-
-(!) :: Env b -> Name a -> b a
-Env env ! Name n = go env (pred (length env)) n
-  where go (Binding b : env) n n'
-          | n == n'   = unsafeCoerce b
-          | otherwise = go env (pred n) n'
-        go [] _ n' = error ("(!): " ++ show n' ++ " out of bounds")
-
-infixl 0 !
-
-extend :: b a -> Env b -> (Name a, Env b)
-extend cont (Env bs) = (Name (length bs), Env (Binding cont : bs))
