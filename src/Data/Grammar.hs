@@ -39,7 +39,7 @@ instance Parsing (Rec n (Grammar t)) where
   notFollowedBy a = a *> empty <|> pure ()
 
 instance RecursiveParsing (Rec n (Grammar t)) where
-  mu f = Rec (f . Var)
+  mu f = Mu (f . Var)
 
 instance CharParsing (Rec n (Grammar Char)) where
   satisfy = In . Sat

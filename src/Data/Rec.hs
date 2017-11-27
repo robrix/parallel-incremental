@@ -10,7 +10,7 @@ import Unsafe.Coerce
 -- | Lift a grammar @g@ indexed by types @a@ into a recursive grammar with nonterminals @n@.
 data Rec n g a where
   Var :: n a -> Rec n g a
-  Rec :: (n a -> Rec n g a) -> Rec n g a
+  Mu :: (n a -> Rec n g a) -> Rec n g a
   In :: g (Rec n g) a -> Rec n g a
 
 
@@ -29,7 +29,7 @@ iterRec algebra = go []
            -> b r
         go env (In g) = algebra (go env) g
         go env (Var v) = env ! v
-        go env (Rec r) = let (name, env') = extend (go env (Rec r)) env in go env' (r name)
+        go env (Mu r) = let (name, env') = extend (go env (Mu r)) env in go env' (r name)
 
 -- | Fold a 'Rec' by iteration using an open-recursive algebra. Cycles are indicated by the presence of a supplied seed value.
 foldRec :: forall a b g
@@ -45,7 +45,7 @@ foldRec alg seed = go
   where go :: Rec b g x -> b x
         go (In g) = alg go g
         go (Var v) = v
-        go (Rec r) = go (r seed)
+        go (Mu r) = go (r seed)
 
 
 type Env b = [Binding b]
