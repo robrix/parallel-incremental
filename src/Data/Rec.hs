@@ -31,6 +31,7 @@ iterRec algebra = go []
         go env (Var v) = env ! v
         go env (Rec r) = let (name, env') = extend (go env (Rec r)) env in go env' (r name)
 
+-- | Fold a 'Rec' by iteration using an open-recursive algebra. Cycles are indicated by the presence of a supplied seed value.
 foldRec :: forall a b g
         .  (  forall a r
            .  (forall a . r a -> b a)
