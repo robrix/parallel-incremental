@@ -10,7 +10,7 @@ data Lam = Abs String Lam | App Lam Lam | Var String
   deriving (Eq, Show)
 
 lam :: (RecursiveParsing m, TokenParsing m) => m Lam
-lam = mu (\ lam -> var <|> abs' lam <|> app lam)
+lam = mu (\ lam -> abs' lam <|> app lam)
 
 var :: TokenParsing m => m Lam
 var = Var <$> name <?> "variable"
@@ -19,7 +19,7 @@ name :: TokenParsing m => m String
 name = token ((:) <$> letter <*> many alphaNum)
 
 abs' :: TokenParsing m => m Lam -> m Lam
-abs' lam = parens (Abs <$ symbolic '\\' <*> name <* dot <*> lam) <?> "abstraction"
+abs' lam = Abs <$ symbolic '\\' <*> name <* dot <*> lam <?> "abstraction"
 
 app :: TokenParsing m => m Lam -> m Lam
-app lam = parens (App <$> lam <*> lam) <?> "application"
+app lam = (var <|> parens lam) `chainl1` pure App <?> "application"
