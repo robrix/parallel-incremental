@@ -4,5 +4,5 @@ module Text.Parser.Recursive
 
 import Control.Applicative
 
-class Alternative m => RecursiveParsing m where
+class RecursiveParsing m where
   mu :: (m a -> m a) -> m a
