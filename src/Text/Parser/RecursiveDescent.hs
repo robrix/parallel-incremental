@@ -35,17 +35,17 @@ runGrammar grammar cs = first formatError $ do
 
 newtype K t a = K { runK :: State t -> Either (Error t) (a, State t) }
 
-iterRec :: forall a t b
+iterRec :: forall a b g
         .  (  forall a r
            .  (forall a . r a -> b a)
-           -> Grammar t r a
+           -> g r a
            -> b a
            )
-        -> (forall n . Rec (Grammar t) n a)
+        -> (forall n . Rec g n a)
         -> b a
 iterRec algebra = go mempty
   where go :: Env b
-           -> Rec (Grammar t) Name r
+           -> Rec g Name r
            -> b r
         go env (In g) = algebra (go env) g
         go env (Var v) = env ! v
