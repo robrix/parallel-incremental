@@ -12,6 +12,7 @@ data Rec g n a where
   In :: g (Rec g n) a -> Rec g n a
 
 
+-- | Tear down a 'Rec' by iteration using an open-recursive algebra. Cycles are followed, unobservably.
 iterRec :: forall a b g
         .  (  forall a r
            .  (forall a . r a -> b a)
