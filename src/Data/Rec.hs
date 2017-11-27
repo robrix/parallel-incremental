@@ -2,6 +2,7 @@
 module Data.Rec
 ( Rec(..)
 , iterRec
+, foldRec
 ) where
 
 import Unsafe.Coerce
@@ -29,6 +30,21 @@ iterRec algebra = go []
         go env (In g) = algebra (go env) g
         go env (Var v) = env ! v
         go env (Rec r) = let (name, env') = extend (go env (Rec r)) env in go env' (r name)
+
+foldRec :: forall a b g
+        .  (  forall a r
+           .  (forall a . r a -> b a)
+           -> g r a
+           -> b a
+           )
+        -> (forall a . b a)
+        -> (forall n . Rec n g a)
+        -> b a
+foldRec alg seed = go
+  where go :: Rec b g x -> b x
+        go (In g) = alg go g
+        go (Var v) = v
+        go (Rec r) = go (r seed)
 
 
 type Env b = [Binding b]
