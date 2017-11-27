@@ -12,7 +12,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Grammar
+  exposed-modules:     Data.Fix
+                     , Data.Grammar
                      , Data.Rec
                      , Data.Recursive
                      , Data.Semiring
