@@ -5,6 +5,7 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
+import Data.Rec
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Recursive
@@ -18,11 +19,6 @@ data Grammar t r a where
   Seq :: (a -> b -> c) -> r a -> r b -> Grammar t r c
   Lab :: r a -> String -> Grammar t r a
   End :: Grammar t r ()
-
-data Rec g n a where
-  Var :: n a -> Rec g n a
-  Rec :: (n a -> Rec g n a) -> Rec g n a
-  In :: g (Rec g n) a -> Rec g n a
 
 instance Functor (Rec (Grammar t) n) where
   fmap = liftA

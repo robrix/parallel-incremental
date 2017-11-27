@@ -3,6 +3,7 @@ module Text.Parser.RecursiveDescent where
 
 import Data.Bifunctor
 import Data.Grammar
+import Data.Rec
 import Data.List (intercalate)
 import Unsafe.Coerce (unsafeCoerce)
 
