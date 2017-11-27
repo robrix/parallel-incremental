@@ -8,7 +8,6 @@ import Control.Applicative
 import Data.Rec
 import Text.Parser.Char
 import Text.Parser.Combinators
-import Text.Parser.Recursive
 import Text.Parser.Token
 
 data Grammar t r a where
@@ -37,9 +36,6 @@ instance Parsing (Rec n (Grammar t)) where
   eof = In End
   unexpected s = In (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
-
-instance RecursiveParsing (Rec n (Grammar t)) where
-  mu f = Mu (f . Var)
 
 instance CharParsing (Rec n (Grammar Char)) where
   satisfy = In . Sat
