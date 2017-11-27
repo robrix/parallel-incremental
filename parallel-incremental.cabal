@@ -14,6 +14,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Data.Grammar
                      , Data.Rec
+                     , Data.Recursive
                      , Data.Semiring
                      , Data.Sparse.Matrix
                      , Data.Sparse.Shape
@@ -21,7 +22,6 @@ library
                      , Data.Sparse.Volume
                      , Example.Lambda
                      , Text.Parser.Deterministic
-                     , Text.Parser.Recursive
                      , Text.Parser.RecursiveDescent
                      , Text.Parser.Valiant
   build-depends:       base >=4.10 && <4.11

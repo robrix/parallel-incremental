@@ -5,7 +5,7 @@ module Data.Rec
 , foldRec
 ) where
 
-import Text.Parser.Recursive
+import Data.Recursive
 import Unsafe.Coerce
 
 -- | Lift a grammar @g@ indexed by types @a@ into a recursive grammar with nonterminals @n@.
@@ -70,5 +70,5 @@ extend :: b a -> Env b -> (Name a, Env b)
 extend cont bs = (Name (length bs), Binding cont : bs)
 
 
-instance RecursiveParsing (Rec n g) where
+instance Recursive (Rec n g) where
   mu f = Mu (f . Var)
