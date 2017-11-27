@@ -11,7 +11,7 @@ import Data.List (intercalate)
 type State t = [t]
 type Error t = ([String], State t)
 
-runGrammar :: Show t => (forall n . Rec (Grammar t) n a) -> State t -> Either String a
+runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> State t -> Either String a
 runGrammar grammar cs = first formatError $ do
   (a, cs) <- runK (iterRec algebra grammar) cs
   if null cs then

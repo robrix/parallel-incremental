@@ -20,28 +20,28 @@ data Grammar t r a where
   Lab :: r a -> String -> Grammar t r a
   End :: Grammar t r ()
 
-instance Functor (Rec (Grammar t) n) where
+instance Functor (Rec n (Grammar t)) where
   fmap = liftA
 
-instance Applicative (Rec (Grammar t) n) where
+instance Applicative (Rec n (Grammar t)) where
   pure = In . Nul
   liftA2 f a b = In (Seq f a b)
 
-instance Alternative (Rec (Grammar t) n) where
+instance Alternative (Rec n (Grammar t)) where
   empty = In (Err [])
   a <|> b = In (Alt a b)
 
-instance Parsing (Rec (Grammar t) n) where
+instance Parsing (Rec n (Grammar t)) where
   try = id
   a <?> s = In (Lab a s)
   eof = In End
   unexpected s = In (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance RecursiveParsing (Rec (Grammar t) n) where
+instance RecursiveParsing (Rec n (Grammar t)) where
   mu f = Rec (f . Var)
 
-instance CharParsing (Rec (Grammar Char) n) where
+instance CharParsing (Rec n (Grammar Char)) where
   satisfy = In . Sat
 
-instance TokenParsing (Rec (Grammar Char) n)
+instance TokenParsing (Rec n (Grammar Char))

@@ -6,10 +6,10 @@ module Data.Rec
 
 import Unsafe.Coerce
 
-data Rec g n a where
-  Var :: n a -> Rec g n a
-  Rec :: (n a -> Rec g n a) -> Rec g n a
-  In :: g (Rec g n) a -> Rec g n a
+data Rec n g a where
+  Var :: n a -> Rec n g a
+  Rec :: (n a -> Rec n g a) -> Rec n g a
+  In :: g (Rec n g) a -> Rec n g a
 
 
 -- | Tear down a 'Rec' by iteration using an open-recursive algebra. Cycles are followed, unobservably.
@@ -19,11 +19,11 @@ iterRec :: forall a b g
            -> g r a
            -> b a
            )
-        -> (forall n . Rec g n a)
+        -> (forall n . Rec n g a)
         -> b a
 iterRec algebra = go []
   where go :: Env b
-           -> Rec g Name r
+           -> Rec Name g r
            -> b r
         go env (In g) = algebra (go env) g
         go env (Var v) = env ! v
