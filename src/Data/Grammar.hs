@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, UndecidableInstances #-}
 module Data.Grammar
 ( Grammar(..)
 ) where
@@ -25,18 +25,19 @@ instance Embed r => Applicative (r (Grammar t)) where
   pure = embed . Nul
   liftA2 f a b = embed (Seq f a b)
 
-instance Embed r => Alternative (r (Grammar t)) where
+instance (Embed r, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) where
   empty = embed (Err [])
   a <|> b = embed (Alt a b)
+  many a = mu (\ more -> (:) <$> a <*> more <|> pure [])
 
-instance Embed r => Parsing (r (Grammar t)) where
+instance (Embed r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   try = id
   a <?> s = embed (Lab a s)
   eof = embed End
   unexpected s = embed (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance Embed r => CharParsing (r (Grammar Char)) where
+instance (Embed r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
   satisfy = embed . Sat
 
-instance Embed r => TokenParsing (r (Grammar Char))
+instance (Embed r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
