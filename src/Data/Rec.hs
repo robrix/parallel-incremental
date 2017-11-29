@@ -8,7 +8,7 @@ module Data.Rec
 
 import Data.Higher.Foldable as H
 import Data.Higher.Functor as H
-import Data.Higher.Functor.Classes
+import Data.Higher.Functor.Classes as H
 import Data.Functor.Const
 import Data.Recursive
 import Unsafe.Coerce
@@ -90,12 +90,12 @@ instance Recursive (Rec n g) where
 instance Embed (Rec n) where
   embed = In
 
-instance HShow1 f => Show (Rec (Const Char) f a)
+instance H.Show1 f => Show (Rec (Const Char) f a)
   where showsPrec = showsRec 0 (iterate succ 'a')
 
-showsRec :: HShow1 f => Int -> String -> Int -> Rec (Const Char) f a -> ShowS
+showsRec :: H.Show1 f => Int -> String -> Int -> Rec (Const Char) f a -> ShowS
 showsRec indent s d r = showParen (d > 10) $ case r of
   Var c -> showString "Var" . showChar ' ' . showChar (getConst c)
   Mu g  -> showString "Mu"  . showChar ' ' . showParen True (showString "\\ " . showChar (head s) . showString " -> "
     . showsRec (succ indent) (tail s) 0 (g (Const (head s))))
-  In fa -> showString "In"  . showChar ' ' . hliftShowsPrec (showsRec indent s) 11 fa
+  In fa -> showString "In"  . showChar ' ' . H.liftShowsPrec (showsRec indent s) 11 fa
