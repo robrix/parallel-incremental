@@ -1,10 +1,11 @@
 {-# LANGUAGE RankNTypes, TypeOperators #-}
 module Data.Higher.Functor
-( HFunctor(..)
+( Functor(..)
 , module F
 ) where
 
 import Data.Higher.Function as F
+import Prelude hiding (Functor)
 
-class HFunctor f where
-  hfmap :: (a ~> b) -> f a ~> f b
+class Functor f where
+  fmap :: (a ~> b) -> f a ~> f b

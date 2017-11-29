@@ -4,7 +4,7 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
-import Data.Higher.Functor
+import qualified Data.Higher.Functor as H
 import Data.Higher.Functor.Classes
 import Data.List (partition)
 import Data.Recursive
@@ -64,8 +64,8 @@ instance (Embed r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char
 
 instance (Embed r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
 
-instance HFunctor (Grammar t) where
-  hfmap f g = case g of
+instance H.Functor (Grammar t) where
+  fmap f g = case g of
     Err es    -> Err es
     Nul a     -> Nul a
     Sat p     -> Sat p
