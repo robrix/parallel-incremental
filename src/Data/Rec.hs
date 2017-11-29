@@ -79,11 +79,11 @@ instance Embed (Rec n) where
   embed = In
 
 instance HShow1 f => Show (Rec (Const Char) f a)
-  where showsPrec = showsRec (iterate succ 'a')
+  where showsPrec = showsRec 0 (iterate succ 'a')
 
-showsRec :: HShow1 f => String -> Int -> Rec (Const Char) f a -> ShowS
-showsRec s n rec = case rec of
+showsRec :: HShow1 f => Int -> String -> Int -> Rec (Const Char) f a -> ShowS
+showsRec indent s n r = case r of
   Var c -> showChar (getConst c)
-  Mu g  -> showString "Mu (\\ " . showChar (head s) . showString " ->\n  "
-    . showsRec (tail s) n (g (Const (head s))) . showString ")"
-  In fa -> hliftShowsPrec (showsRec s) n fa
+  Mu g  -> showString "Mu (\\ " . showChar (head s) . showString " ->\n"
+    . showString (replicate (2 * (succ indent)) ' ') . showsRec (succ indent) (tail s) n (g (Const (head s))) . showString ")"
+  In fa -> hliftShowsPrec (showsRec indent s) n fa
