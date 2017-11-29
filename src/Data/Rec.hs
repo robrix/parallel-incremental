@@ -1,9 +1,8 @@
-{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables, UndecidableInstances #-}
 module Data.Rec
 ( Rec(..)
 , iterRec
 , foldRec
-, Show1Rec
 ) where
 
 import Data.Functor.Classes
@@ -80,13 +79,10 @@ instance Embed (Rec n) where
 
 newtype V a = V String
 
-instance Show1Rec g => Show1 (Rec V g) where
+instance Show1 (g (Rec V g)) => Show1 (Rec V g) where
   liftShowsPrec _  _  d (Var (V s)) = showsUnaryWith showsPrec "Var" d s
   liftShowsPrec sp sl d (Mu g) = showParen (d > 10) $ showString "Mu" . showChar ' ' . showParen True (showString "\\ a -> " . liftShowsPrec sp sl 0 (g (V "a")))
-  liftShowsPrec sp sl d (In r) = showsUnaryWith (liftShowsPrecRec sp sl) "In" d r
+  liftShowsPrec sp sl d (In r) = showsUnaryWith (liftShowsPrec sp sl) "In" d r
 
-class Show1Rec g where
-  liftShowsPrecRec :: Show1 r => (Int -> a -> ShowS) -> ([a] -> ShowS) -> Int -> g r a -> ShowS
-
-instance (Show1Rec g, Show a) => Show (Rec V g a) where
+instance (Show1 (g (Rec V g)), Show a) => Show (Rec V g a) where
   showsPrec = showsPrec1
