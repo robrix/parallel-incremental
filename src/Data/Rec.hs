@@ -1,10 +1,11 @@
-{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables, TypeOperators #-}
 module Data.Rec
 ( Rec(..)
 , iterRec
 , foldRec
 ) where
 
+import Data.Higher.Functor as H
 import Data.Higher.Functor.Classes
 import Data.Functor.Const
 import Data.Recursive
@@ -19,10 +20,10 @@ data Rec n g a where
 
 -- | Tear down a 'Rec' by iteration using an open-recursive algebra. Cycles are followed, unobservably.
 iterRec :: forall a b g
-        .  (  forall a r
-           .  (forall a . r a -> b a)
-           -> g r a
-           -> b a
+        .  (  forall r
+           .  (r ~> b)
+           -> g r
+           ~> b
            )
         -> (forall n . Rec n g a)
         -> b a
@@ -36,10 +37,10 @@ iterRec algebra = go []
 
 -- | Fold a 'Rec' by iteration using an open-recursive algebra. Cycles are indicated by the presence of a supplied seed value.
 foldRec :: forall a b g
-        .  (  forall a r
-           .  (forall a . r a -> b a)
-           -> g r a
-           -> b a
+        .  (  forall r
+           .  (r ~> b)
+           -> g r
+           ~> b
            )
         -> (forall a . b a)
         -> (forall n . Rec n g a)
