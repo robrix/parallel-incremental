@@ -4,7 +4,9 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
+import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
+import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes
 import Data.List (partition)
 import Data.Recursive
@@ -63,6 +65,16 @@ instance (Embed r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char
   satisfy = embed . Sat
 
 instance (Embed r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
+
+instance H.Foldable (Grammar t) where
+  foldMap f g = case g of
+    Err _     -> H.mempty
+    Nul _     -> H.mempty
+    Sat _     -> H.mempty
+    Alt a b   -> f a H.<> f b
+    Seq _ a b -> f a H.<> f b
+    Lab r _   -> f r
+    End       -> H.mempty
 
 instance H.Functor (Grammar t) where
   fmap f g = case g of
