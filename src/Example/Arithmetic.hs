@@ -17,6 +17,8 @@ data Expr a where
   LtE :: Expr Integer -> Expr Integer -> Expr Bool
   Gt :: Expr Integer -> Expr Integer -> Expr Bool
   GtE :: Expr Integer -> Expr Integer -> Expr Bool
+  And :: Expr Bool -> Expr Bool -> Expr Bool
+  Or :: Expr Bool -> Expr Bool -> Expr Bool
 
 deriving instance Eq a => Eq (Expr a)
 deriving instance Show a => Show (Expr a)
@@ -69,6 +71,8 @@ runExpr (Lt a b) = (<) <$> runExpr a <*> runExpr b
 runExpr (LtE a b) = (<=) <$> runExpr a <*> runExpr b
 runExpr (Gt a b) = (>) <$> runExpr a <*> runExpr b
 runExpr (GtE a b) = (>=) <$> runExpr a <*> runExpr b
+runExpr (And a b) = (&&) <$> runExpr a <*> runExpr b
+runExpr (Or a b) = (||) <$> runExpr a <*> runExpr b
 
 nonZero :: Integer -> Maybe Integer
 nonZero a = guard (a /= 0) *> pure a
