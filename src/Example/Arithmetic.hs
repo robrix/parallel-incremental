@@ -7,7 +7,7 @@ import Data.Recursive
 import Text.Parser.Token
 
 data Expr a
-  = K a
+  = I a
   | Add (Expr a) (Expr a)
   | Mul (Expr a) (Expr a)
   | Sub (Expr a) (Expr a)
@@ -18,7 +18,7 @@ data Expr a
   deriving (Eq, Show)
 
 instance Num a => Num (Expr a) where
-  fromInteger = K . fromInteger
+  fromInteger = I . fromInteger
   (+) = Add
   (*) = Mul
   (-) = Sub
@@ -39,11 +39,11 @@ app :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 app expr = Abs <$ symbol "abs" <*> atom expr <|> atom expr
 
 atom :: TokenParsing m => m (Expr Integer) -> m (Expr Integer)
-atom expr = parens expr <|> K <$> integer
+atom expr = parens expr <|> I <$> integer
 
 
 runExpr :: Expr Integer -> Maybe Integer
-runExpr (K a) = Just a
+runExpr (I a) = Just a
 runExpr (Add a b) = (+) <$> runExpr a <*> runExpr b
 runExpr (Mul a b) = (*) <$> runExpr a <*> runExpr b
 runExpr (Sub a b) = (-) <$> runExpr a <*> runExpr b
