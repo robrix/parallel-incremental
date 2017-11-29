@@ -55,7 +55,7 @@ foldRec alg seed = go
 
 
 -- | Fold a 'Rec' using a higher-order F-algebra. Cycles are indicated by the presence of a supplied seed value.
-cata :: forall f a . H.Functor f => (f a ~> a) -> (forall x . a x) -> Rec a f ~> a
+cata :: forall f a x . H.Functor f => (f a ~> a) -> (forall x . a x) -> (forall n . Rec n f x) -> a x
 cata alg seed = go
   where go :: Rec a f ~> a
         go (Var v) = v
