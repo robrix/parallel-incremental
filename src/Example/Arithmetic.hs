@@ -12,6 +12,7 @@ data Expr a where
   B :: Bool -> Expr Bool
   Add, Mul, Sub, Div, Exp :: Expr Integer -> Expr Integer -> Expr Integer
   Abs, Sig :: Expr Integer -> Expr Integer
+  If :: Expr Bool -> Expr a -> Expr a -> Expr a
 
 deriving instance Eq a => Eq (Expr a)
 deriving instance Show a => Show (Expr a)
@@ -54,6 +55,12 @@ runExpr (Exp a b) = do
   pure (foldl' (*) 1 (replicate (fromInteger b') a'))
 runExpr (Abs a) = abs <$> runExpr a
 runExpr (Sig a) = signum <$> runExpr a
+runExpr (If c t e) = do
+  c' <- runExpr c
+  if c' then
+    runExpr t
+  else
+    runExpr e
 
 nonZero :: Integer -> Maybe Integer
 nonZero a = guard (a /= 0) *> pure a
