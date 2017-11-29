@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances, GADTs, StandaloneDeriving #-}
 module Example.Arithmetic where
 
 import Control.Applicative
@@ -6,19 +7,16 @@ import Data.Foldable (foldl')
 import Data.Recursive
 import Text.Parser.Token
 
-data Expr a
-  = I a
-  | Add (Expr a) (Expr a)
-  | Mul (Expr a) (Expr a)
-  | Sub (Expr a) (Expr a)
-  | Div (Expr a) (Expr a)
-  | Exp (Expr a) (Expr a)
-  | Abs (Expr a)
-  | Sig (Expr a)
-  deriving (Eq, Show)
+data Expr a where
+  I :: Integer -> Expr Integer
+  Add, Mul, Sub, Div, Exp :: Expr Integer -> Expr Integer -> Expr Integer
+  Abs, Sig :: Expr Integer -> Expr Integer
 
-instance Num a => Num (Expr a) where
-  fromInteger = I . fromInteger
+deriving instance Eq a => Eq (Expr a)
+deriving instance Show a => Show (Expr a)
+
+instance Num (Expr Integer) where
+  fromInteger = I
   (+) = Add
   (*) = Mul
   (-) = Sub
