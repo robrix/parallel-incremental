@@ -1,11 +1,12 @@
-{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables, UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, ScopedTypeVariables #-}
 module Data.Rec
 ( Rec(..)
 , iterRec
 , foldRec
 ) where
 
-import Data.Functor.Classes
+import Data.Higher.Functor.Classes
+import Data.Functor.Const
 import Data.Recursive
 import Unsafe.Coerce
 
@@ -77,12 +78,12 @@ instance Recursive (Rec n g) where
 instance Embed (Rec n) where
   embed = In
 
-newtype V a = V String
+instance HShow1 f => Show (Rec (Const Char) f a)
+  where showsPrec = showsRec (iterate succ 'a')
 
-instance Show1 (g (Rec V g)) => Show1 (Rec V g) where
-  liftShowsPrec _  _  d (Var (V s)) = showsUnaryWith showsPrec "Var" d s
-  liftShowsPrec sp sl d (Mu g) = showParen (d > 10) $ showString "Mu" . showChar ' ' . showParen True (showString "\\ a -> " . liftShowsPrec sp sl 0 (g (V "a")))
-  liftShowsPrec sp sl d (In r) = showsUnaryWith (liftShowsPrec sp sl) "In" d r
-
-instance (Show1 (g (Rec V g)), Show a) => Show (Rec V g a) where
-  showsPrec = showsPrec1
+showsRec :: HShow1 f => String -> Int -> Rec (Const Char) f a -> ShowS
+showsRec s n rec = case rec of
+  Var c -> showChar (getConst c)
+  Mu g  -> showString "Mu (\\ " . showChar (head s) . showString " ->\n  "
+    . showsRec (tail s) n (g (Const (head s))) . showString ")"
+  In fa -> hliftShowsPrec (showsRec s) n fa
