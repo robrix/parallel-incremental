@@ -1,7 +1,9 @@
 module Data.Higher.Monoid
-( HMonoid(..)
+( Monoid(..)
 ) where
 
-class HMonoid m where
-  hmempty :: m a
-  hmappend :: m a -> m a -> m a
+import Prelude hiding (Monoid(..))
+
+class Monoid m where
+  mempty :: m a
+  (<>) :: m a -> m a -> m a

@@ -5,9 +5,9 @@ module Data.Higher.Foldable
 ) where
 
 import Data.Higher.Function as F
-import Data.Higher.Monoid
+import Data.Higher.Monoid as H
 
 class HFoldable f where
-  hfoldMap :: HMonoid m => (a ~> m) -> f a ~> m
-  hfold :: HMonoid m => f m ~> m
+  hfoldMap :: H.Monoid m => (a ~> m) -> f a ~> m
+  hfold :: H.Monoid m => f m ~> m
   hfold = hfoldMap id
