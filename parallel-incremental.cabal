@@ -27,6 +27,7 @@ library
                      , Data.Sparse.Shape
                      , Data.Sparse.Vector
                      , Data.Sparse.Volume
+                     , Example.Arithmetic
                      , Example.Lambda
                      , Text.Parser.Deterministic
                      , Text.Parser.RecursiveDescent
