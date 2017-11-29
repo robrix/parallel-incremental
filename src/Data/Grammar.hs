@@ -8,7 +8,6 @@ import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes
-import Data.List (partition)
 import Data.Recursive
 import Text.Parser.Char
 import Text.Parser.Combinators
@@ -25,21 +24,14 @@ data Grammar t r a where
 
 instance (Bounded t, Enum t, Show t) => HShow1 (Grammar t) where
   hliftShowsPrec sp d g = case g of
-    Err es    -> showsUnaryWith   showsPrec                   "Err" d es
-    Nul a     -> showsUnaryWith   hide                        "Nul" d a
-    Sat p     -> showsUnaryWith   showsPredicate              "Sat" d p
-    Alt a b   -> showsBinaryWith  sp             sp           "Alt" d a b
-    Seq f a b -> showsTernaryWith hide           sp        sp "Seq" d f a b
-    Lab r s   -> showsBinaryWith  sp             showsPrec    "Lab" d r s
+    Err es    -> showsUnaryWith   showsPrec              "Err" d es
+    Nul a     -> showsUnaryWith   hide                   "Nul" d a
+    Sat p     -> showsUnaryWith   hide                   "Sat" d p
+    Alt a b   -> showsBinaryWith  sp        sp           "Alt" d a b
+    Seq f a b -> showsTernaryWith hide      sp        sp "Seq" d f a b
+    Lab r s   -> showsBinaryWith  sp        showsPrec    "Lab" d r s
     End       -> showString "End"
-    where showsPredicate d p | null pass                 = showParen (d > 10) (showString "const False")
-                             | null fail                 = showParen (d > 10) (showString "const True")
-                             | [c] <- pass               = showParen True     (showString "==" . showsPrec 5 c)
-                             | [c] <- fail               = showParen True     (showString "/=" . showsPrec 5 c)
-                             | length pass < length fail = showParen True     (showString "`elem` " . showsPrec 5 pass)
-                             | otherwise                 = showParen True     (showString "`notElem` " . showsPrec 5 fail)
-            where (pass, fail) = partition p [minBound..maxBound]
-          hide _ _ = showChar '_'
+    where hide _ _ = showChar '_'
 
 instance Embed r => Functor (r (Grammar t)) where
   fmap = liftA
