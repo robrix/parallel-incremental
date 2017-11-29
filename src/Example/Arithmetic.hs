@@ -1,5 +1,9 @@
 module Example.Arithmetic where
 
+import Control.Applicative
+import Data.Recursive
+import Text.Parser.Token
+
 data Expr a
   = K a
   | Add (Expr a) (Expr a)
@@ -18,3 +22,13 @@ instance Num a => Num (Expr a) where
   (-) = Sub
   abs = Abs
   signum = Sig
+
+
+expr :: (Recursive m, TokenParsing m) => m (Expr Integer)
+expr = mu (\ expr -> term expr `chainl1` (Add <$ symbol "+" <|> Sub <$ symbol "-"))
+
+term :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
+term expr = factor expr `chainl1` (Mul <$ symbol "*" <|> Div <$ symbol "/")
+
+factor :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
+factor expr = parens expr <|> K <$> integer
