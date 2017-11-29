@@ -3,8 +3,10 @@ module Data.Rec
 ( Rec(..)
 , iterRec
 , foldRec
+, cata
 ) where
 
+import Data.Higher.Foldable as H
 import Data.Higher.Functor as H
 import Data.Higher.Functor.Classes
 import Data.Functor.Const
@@ -50,6 +52,15 @@ foldRec alg seed = go
         go (In g) = alg go g
         go (Var v) = v
         go (Mu r) = go (r seed)
+
+
+-- | Fold a 'Rec' using a higher-order F-algebra. Cycles are indicated by the presence of a supplied seed value.
+cata :: forall f a . H.Functor f => (f a ~> a) -> (forall x . a x) -> Rec a f ~> a
+cata alg seed = go
+  where go :: Rec a f ~> a
+        go (Var v) = v
+        go (Mu r) = go (r seed)
+        go (In g) = alg (H.fmap go g)
 
 
 type Env b = [Binding b]
