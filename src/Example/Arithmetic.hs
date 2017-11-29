@@ -10,3 +10,11 @@ data Expr a
   | Abs (Expr a)
   | Sig (Expr a)
   deriving (Eq, Show)
+
+instance Num a => Num (Expr a) where
+  fromInteger = K . fromInteger
+  (+) = Add
+  (*) = Mul
+  (-) = Sub
+  abs = Abs
+  signum = Sig
