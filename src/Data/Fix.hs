@@ -7,8 +7,8 @@ import Data.Recursive
 
 newtype Fix f a = Fix { unFix :: f (Fix f) a }
 
-hcata :: H.Functor f => (f a ~> a) -> Fix f ~> a
-hcata alg = alg . H.fmap (hcata alg) . unFix
+cata :: H.Functor f => (f a ~> a) -> Fix f ~> a
+cata alg = alg . H.fmap (cata alg) . unFix
 
 instance Recursive (Fix f) where
   mu = fix
