@@ -41,8 +41,9 @@ atom :: TokenParsing m => m (Expr Integer) -> m (Expr Integer)
 atom expr = parens expr <|> I <$> integer
 
 
-runExpr :: Expr Integer -> Maybe Integer
+runExpr :: Expr a -> Maybe a
 runExpr (I a) = Just a
+runExpr (B a) = Just a
 runExpr (Add a b) = (+) <$> runExpr a <*> runExpr b
 runExpr (Mul a b) = (*) <$> runExpr a <*> runExpr b
 runExpr (Sub a b) = (-) <$> runExpr a <*> runExpr b
