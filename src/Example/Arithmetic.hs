@@ -6,19 +6,19 @@ import Data.Foldable (foldl')
 import Data.Recursive
 import Text.Parser.Token
 
-data Expr
-  = I Integer
-  | Add Expr Expr
-  | Mul Expr Expr
-  | Sub Expr Expr
-  | Div Expr Expr
-  | Exp Expr Expr
-  | Abs Expr
-  | Sig Expr
+data Expr a
+  = K a
+  | Add (Expr a) (Expr a)
+  | Mul (Expr a) (Expr a)
+  | Sub (Expr a) (Expr a)
+  | Div (Expr a) (Expr a)
+  | Exp (Expr a) (Expr a)
+  | Abs (Expr a)
+  | Sig (Expr a)
   deriving (Eq, Show)
 
-instance Num Expr where
-  fromInteger = I
+instance Num a => Num (Expr a) where
+  fromInteger = K . fromInteger
   (+) = Add
   (*) = Mul
   (-) = Sub
@@ -26,24 +26,24 @@ instance Num Expr where
   signum = Sig
 
 
-expr :: (Recursive m, TokenParsing m) => m Expr
+expr :: (Recursive m, TokenParsing m) => m (Expr Integer)
 expr = mu (\ expr -> term expr `chainl1` (Add <$ symbol "+" <|> Sub <$ symbol "-"))
 
-term :: (Recursive m, TokenParsing m) => m Expr -> m Expr
+term :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 term expr = factor expr `chainl1` (Mul <$ symbol "*" <|> Div <$ symbol "/")
 
-factor :: (Recursive m, TokenParsing m) => m Expr -> m Expr
+factor :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 factor expr = app expr `chainl1` (Exp <$ symbol "^")
 
-app :: (Recursive m, TokenParsing m) => m Expr -> m Expr
+app :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 app expr = Abs <$ symbol "abs" <*> atom expr <|> atom expr
 
-atom :: TokenParsing m => m Expr -> m Expr
-atom expr = parens expr <|> I <$> integer
+atom :: TokenParsing m => m (Expr Integer) -> m (Expr Integer)
+atom expr = parens expr <|> K <$> integer
 
 
-runExpr :: Expr -> Maybe Integer
-runExpr (I a) = Just a
+runExpr :: Expr Integer -> Maybe Integer
+runExpr (K a) = Just a
 runExpr (Add a b) = (+) <$> runExpr a <*> runExpr b
 runExpr (Mul a b) = (*) <$> runExpr a <*> runExpr b
 runExpr (Sub a b) = (-) <$> runExpr a <*> runExpr b
