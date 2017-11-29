@@ -17,6 +17,7 @@ library
                      , Data.Higher.Function
                      , Data.Higher.Functor
                      , Data.Higher.Functor.Classes
+                     , Data.Higher.Monoid
                      , Data.Rec
                      , Data.Recursive
                      , Data.Semiring
