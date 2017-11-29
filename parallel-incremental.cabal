@@ -19,6 +19,7 @@ library
                      , Data.Higher.Functor
                      , Data.Higher.Functor.Classes
                      , Data.Higher.Monoid
+                     , Data.Higher.Semigroup
                      , Data.Rec
                      , Data.Recursive
                      , Data.Semiring
