@@ -14,6 +14,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Data.Fix
                      , Data.Grammar
+                     , Data.Higher.Foldable
                      , Data.Higher.Function
                      , Data.Higher.Functor
                      , Data.Higher.Functor.Classes
