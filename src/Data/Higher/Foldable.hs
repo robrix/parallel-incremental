@@ -1,13 +1,14 @@
 {-# LANGUAGE RankNTypes, TypeOperators #-}
 module Data.Higher.Foldable
-( HFoldable(..)
+( Foldable(..)
 , module F
 ) where
 
 import Data.Higher.Function as F
 import Data.Higher.Monoid as H
+import Prelude hiding (Foldable(..))
 
-class HFoldable f where
-  hfoldMap :: H.Monoid m => (a ~> m) -> f a ~> m
-  hfold :: H.Monoid m => f m ~> m
-  hfold = hfoldMap id
+class Foldable f where
+  foldMap :: H.Monoid m => (a ~> m) -> f a ~> m
+  fold :: H.Monoid m => f m ~> m
+  fold = foldMap id
