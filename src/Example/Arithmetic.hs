@@ -33,7 +33,10 @@ term :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 term expr = factor expr `chainl1` (Mul <$ symbol "*" <|> Div <$ symbol "/")
 
 factor :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
-factor expr = parens expr <|> K <$> integer
+factor expr = atom expr `chainl1` (Exp <$ symbol "^")
+
+atom :: TokenParsing m => m (Expr Integer) -> m (Expr Integer)
+atom expr = parens expr <|> K <$> integer
 
 
 runExpr :: Expr Integer -> Maybe Integer
