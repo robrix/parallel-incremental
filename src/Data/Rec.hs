@@ -94,8 +94,8 @@ instance HShow1 f => Show (Rec (Const Char) f a)
   where showsPrec = showsRec 0 (iterate succ 'a')
 
 showsRec :: HShow1 f => Int -> String -> Int -> Rec (Const Char) f a -> ShowS
-showsRec indent s n r = case r of
-  Var c -> showChar (getConst c)
-  Mu g  -> showString "Mu (\\ " . showChar (head s) . showString " ->\n"
-    . showString (replicate (2 * (succ indent)) ' ') . showsRec (succ indent) (tail s) n (g (Const (head s))) . showString ")"
-  In fa -> hliftShowsPrec (showsRec indent s) n fa
+showsRec indent s d r = showParen (d > 10) $ case r of
+  Var c -> showString "Var" . showChar ' ' . showChar (getConst c)
+  Mu g  -> showString "Mu"  . showChar ' ' . showParen True (showString "\\ " . showChar (head s) . showString " -> "
+    . showsRec (succ indent) (tail s) 0 (g (Const (head s))))
+  In fa -> showString "In"  . showChar ' ' . hliftShowsPrec (showsRec indent s) 11 fa
