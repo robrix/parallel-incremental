@@ -1,6 +1,8 @@
 module Example.Arithmetic where
 
 import Control.Applicative
+import Control.Monad (guard)
+import Data.Foldable (foldl')
 import Data.Recursive
 import Text.Parser.Token
 
@@ -32,3 +34,20 @@ term expr = factor expr `chainl1` (Mul <$ symbol "*" <|> Div <$ symbol "/")
 
 factor :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 factor expr = parens expr <|> K <$> integer
+
+
+runExpr :: Expr Integer -> Maybe Integer
+runExpr (K a) = Just a
+runExpr (Add a b) = (+) <$> runExpr a <*> runExpr b
+runExpr (Mul a b) = (*) <$> runExpr a <*> runExpr b
+runExpr (Sub a b) = (-) <$> runExpr a <*> runExpr b
+runExpr (Div a b) = div <$> runExpr a <*> (runExpr b >>= nonZero)
+runExpr (Exp a b) = do
+  a' <- runExpr a
+  b' <- runExpr b
+  pure (foldl' (*) 1 (replicate (fromInteger b') a'))
+runExpr (Abs a) = abs <$> runExpr a
+runExpr (Sig a) = signum <$> runExpr a
+
+nonZero :: Integer -> Maybe Integer
+nonZero a = guard (a /= 0) *> pure a
