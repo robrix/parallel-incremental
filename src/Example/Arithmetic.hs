@@ -13,6 +13,10 @@ data Expr a where
   Abs, Sig :: Expr Integer -> Expr Integer
   If :: Expr Bool -> Expr a -> Expr a -> Expr a
   Eq :: Expr Integer -> Expr Integer -> Expr Bool
+  Lt :: Expr Integer -> Expr Integer -> Expr Bool
+  LtE :: Expr Integer -> Expr Integer -> Expr Bool
+  Gt :: Expr Integer -> Expr Integer -> Expr Bool
+  GtE :: Expr Integer -> Expr Integer -> Expr Bool
 
 deriving instance Eq a => Eq (Expr a)
 deriving instance Show a => Show (Expr a)
@@ -61,6 +65,10 @@ runExpr (If c t e) = do
   else
     runExpr e
 runExpr (Eq a b) = (==) <$> runExpr a <*> runExpr b
+runExpr (Lt a b) = (<) <$> runExpr a <*> runExpr b
+runExpr (LtE a b) = (<=) <$> runExpr a <*> runExpr b
+runExpr (Gt a b) = (>) <$> runExpr a <*> runExpr b
+runExpr (GtE a b) = (>=) <$> runExpr a <*> runExpr b
 
 nonZero :: Integer -> Maybe Integer
 nonZero a = guard (a /= 0) *> pure a
