@@ -29,6 +29,7 @@ instance (Embed r, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) whe
   empty = embed (Err [])
   a <|> b = embed (Alt a b)
   many a = mu (\ more -> (:) <$> a <*> more <|> pure [])
+  some a = (:) <$> a <*> many a
 
 instance (Embed r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   try = id
