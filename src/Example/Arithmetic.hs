@@ -12,6 +12,7 @@ data Expr a where
   Add, Mul, Sub, Div, Exp :: Expr Integer -> Expr Integer -> Expr Integer
   Abs, Sig :: Expr Integer -> Expr Integer
   If :: Expr Bool -> Expr a -> Expr a -> Expr a
+  Eq :: Expr Integer -> Expr Integer -> Expr Bool
 
 deriving instance Eq a => Eq (Expr a)
 deriving instance Show a => Show (Expr a)
@@ -59,6 +60,7 @@ runExpr (If c t e) = do
     runExpr t
   else
     runExpr e
+runExpr (Eq a b) = (==) <$> runExpr a <*> runExpr b
 
 nonZero :: Integer -> Maybe Integer
 nonZero a = guard (a /= 0) *> pure a
