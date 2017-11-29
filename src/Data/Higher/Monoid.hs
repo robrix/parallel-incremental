@@ -1,5 +1,6 @@
 module Data.Higher.Monoid
 ( Monoid(..)
+, (<>)
 , Lift(..)
 ) where
 
