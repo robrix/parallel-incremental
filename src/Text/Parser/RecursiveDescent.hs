@@ -32,8 +32,8 @@ runGrammar grammar cs = first formatError $ do
             let fab = fa b'
             fab `seq` Right (fab, cs'')
           Lab a s -> first (\ (_, cs) -> ([s], cs)) (runK (go a) cs)
-          End | [] <- cs  -> Right ((), [])
-              | otherwise -> Left  (["eof"], cs)
+          End a | [] <- cs  -> Right (a, [])
+                | otherwise -> Left  (["eof"], cs)
 
 newtype K t a = K { runK :: State t -> Either (Error t) (a, State t) }
 

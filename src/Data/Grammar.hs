@@ -20,7 +20,7 @@ data Grammar t r a where
   Alt :: r a -> r a -> Grammar t r a
   Seq :: (c -> b -> a) -> r c -> r b -> Grammar t r a
   Lab :: r a -> String -> Grammar t r a
-  End :: Grammar t r ()
+  End :: a -> Grammar t r a
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
   liftShowsPrec sp d g = case g of
@@ -30,7 +30,7 @@ instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
     Alt a b   -> showsBinaryWith  sp        sp           "Alt" d a b
     Seq f a b -> showsTernaryWith hide      sp        sp "Seq" d f a b
     Lab r s   -> showsBinaryWith  sp        showsPrec    "Lab" d r s
-    End       -> showString "End"
+    End a     -> showsUnaryWith   hide                   "End" d a
     where hide _ _ = showChar '_'
 
 instance Embed r => Functor (r (Grammar t)) where
@@ -49,7 +49,7 @@ instance (Embed r, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) whe
 instance (Embed r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   try = id
   a <?> s = embed (Lab a s)
-  eof = embed End
+  eof = embed (End ())
   unexpected s = embed (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
@@ -66,7 +66,7 @@ instance H.Foldable (Grammar t) where
     Alt a b   -> f a H.<> f b
     Seq _ a b -> f a H.<> f b
     Lab r _   -> f r
-    End       -> H.mempty
+    End _     -> H.mempty
 
 instance H.Functor (Grammar t) where
   fmap f g = case g of
@@ -76,4 +76,4 @@ instance H.Functor (Grammar t) where
     Alt a b   -> Alt (f a) (f b)
     Seq g a b -> Seq g (f a) (f b)
     Lab r s   -> Lab (f r) s
-    End       -> End
+    End a     -> End a
