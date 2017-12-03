@@ -18,7 +18,7 @@ data Grammar t r a where
   Nul :: a -> Grammar t r a
   Sat :: (t -> Bool) -> Grammar t r t
   Alt :: r a -> r a -> Grammar t r a
-  Seq :: (a -> b -> c) -> r a -> r b -> Grammar t r c
+  Seq :: (c -> b -> a) -> r c -> r b -> Grammar t r a
   Lab :: r a -> String -> Grammar t r a
   End :: Grammar t r ()
 
