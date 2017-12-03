@@ -14,14 +14,14 @@ import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
 
-data Grammar t r a where
-  Err :: [String] -> Grammar t r a
-  Nul :: a -> Grammar t r a
-  Sat :: (t -> Maybe a) -> Grammar t r a
-  Alt :: r a -> r a -> Grammar t r a
-  Seq :: (c -> b -> a) -> r c -> r b -> Grammar t r a
-  Lab :: r a -> String -> Grammar t r a
-  End :: a -> Grammar t r a
+data Grammar t r a
+  = Err [String]
+  | Nul a
+  | Sat (t -> Maybe a)
+  | Alt (r a) (r a)
+  | forall c b . Seq (c -> b -> a) (r c) (r b)
+  | Lab (r a) String
+  | End a
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
   liftShowsPrec sp d g = case g of
