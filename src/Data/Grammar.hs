@@ -4,6 +4,7 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
+import Control.Monad (guard)
 import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
@@ -16,7 +17,7 @@ import Text.Parser.Token
 data Grammar t r a where
   Err :: [String] -> Grammar t r a
   Nul :: a -> Grammar t r a
-  Sat :: (t -> Bool) -> Grammar t r t
+  Sat :: (t -> Maybe a) -> Grammar t r a
   Alt :: r a -> r a -> Grammar t r a
   Seq :: (c -> b -> a) -> r c -> r b -> Grammar t r a
   Lab :: r a -> String -> Grammar t r a
@@ -54,7 +55,7 @@ instance (Embed r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   notFollowedBy a = a *> empty <|> pure ()
 
 instance (Embed r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
-  satisfy = embed . Sat
+  satisfy p = embed (Sat (\ c -> guard (p c) *> Just c))
 
 instance (Embed r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
 

@@ -22,8 +22,8 @@ runGrammar grammar cs = first formatError $ do
         algebra go g = K $ \ cs -> case g of
           Err es -> Left (es, cs)
           Nul a -> Right (a, cs)
-          Sat p | c:cs' <- cs, p c -> Right (c, cs')
-                | otherwise        -> Left  ([], cs)
+          Sat p | c:cs' <- cs, Just a <- p c -> Right (a, cs')
+                | otherwise                  -> Left  ([], cs)
           Alt a b -> either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (runK (go b) cs)) Right (runK (go a) cs)
           Seq f a b -> do
             (a', cs')  <- runK (go a) cs
