@@ -39,6 +39,14 @@ class H.Functor (Cobase1 t) => Corecursive1 t where
     where go :: a ~> t
           go = embed1 . H.fmap go . coalgebra
 
+  apo :: forall a . (a ~> Cobase1 t (t :+: a)) -> a ~> t
+  apo coalgebra = go
+    where go :: a ~> t
+          go = embed1 . H.fmap (unSum id go) . coalgebra
+
+unSum :: (l a -> b) -> (r a -> b) -> (l :+: r) a -> b
+unSum f _ (L1 l) = f l
+unSum _ g (R1 r) = g r
 
 chainl1 :: (Alternative m, Mu1 m) => m a -> m (a -> a -> a) -> m a
 chainl1 expr op = scan
