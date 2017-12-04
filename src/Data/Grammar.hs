@@ -37,30 +37,30 @@ instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
     End a     -> showsUnaryWith   hide                   "End" d a
     where hide _ _ = showChar '_'
 
-instance Embed r => Functor (r (Grammar t)) where
+instance Embed1 r => Functor (r (Grammar t)) where
   fmap = liftA
 
-instance Embed r => Applicative (r (Grammar t)) where
+instance Embed1 r => Applicative (r (Grammar t)) where
   pure = embed1 . Nul
   liftA2 f a b = embed1 (Seq f a b)
 
-instance (Embed r, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) where
+instance (Embed1 r, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) where
   empty = embed1 (Err [])
   a <|> b = embed1 (Alt a b)
   many a = mu (\ more -> (:) <$> a <*> more <|> pure [])
   some a = (:) <$> a <*> many a
 
-instance (Embed r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
+instance (Embed1 r, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   try = id
   a <?> s = embed1 (Lab a s)
   eof = embed1 (End ())
   unexpected s = embed1 (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance (Embed r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
+instance (Embed1 r, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
   satisfy p = embed1 (Sat (\ c -> guard (p c) *> Just c))
 
-instance (Embed r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
+instance (Embed1 r, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
 
 instance H.Foldable (Grammar t) where
   foldMap f g = case g of
