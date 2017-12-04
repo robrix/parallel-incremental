@@ -6,8 +6,10 @@ module Data.Recursive
 , chainl1
 ) where
 
+import Control.Arrow ((&&&))
 import Control.Applicative
 import Data.Higher.Functor as H
+import GHC.Generics
 
 class Mu1 t where
   mu1 :: (t a -> t a) -> t a
@@ -21,6 +23,11 @@ class H.Functor (Base1 t) => Recursive1 t where
   cata algebra = go
     where go :: t ~> a
           go = algebra . H.fmap go . project1
+
+  para :: forall a . (Base1 t (t :*: a) ~> a) -> t ~> a
+  para algebra = go
+    where go :: t ~> a
+          go = algebra . H.fmap (uncurry (:*:) . (id &&& go)) . project1
 
 class H.Functor (Cobase1 t) => Corecursive1 t where
   type Cobase1 t :: (* -> *) -> * -> *
