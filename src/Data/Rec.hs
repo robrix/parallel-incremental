@@ -88,7 +88,7 @@ instance Recursive (Rec n g) where
   mu f = Mu (f . Var)
 
 instance Embed (Rec n) where
-  embed = In
+  embed1 = In
 
 instance H.Show1 f => Show (Rec (Const Char) f a)
   where showsPrec = showsRec 0 (iterate succ 'a')

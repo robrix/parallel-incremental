@@ -14,4 +14,4 @@ instance Recursive (Fix f) where
   mu = fix
 
 instance Embed Fix where
-  embed = Fix
+  embed1 = Fix

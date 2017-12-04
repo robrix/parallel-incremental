@@ -10,7 +10,7 @@ class Recursive m where
   mu :: (m a -> m a) -> m a
 
 class Embed t where
-  embed :: f (t f) a -> t f a
+  embed1 :: f (t f) a -> t f a
 
 
 chainl1 :: (Alternative m, Recursive m) => m a -> m (a -> a -> a) -> m a
