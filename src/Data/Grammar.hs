@@ -37,30 +37,30 @@ instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
     End a     -> showsUnaryWith   hide                   "End" d a
     where hide _ _ = showChar '_'
 
-instance (Corecursive1 (r (Grammar t)), Base1 (r (Grammar t)) ~ Grammar t) => Functor (r (Grammar t)) where
+instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t) => Functor (r (Grammar t)) where
   fmap = liftA
 
-instance (Corecursive1 (r (Grammar t)), Base1 (r (Grammar t)) ~ Grammar t) => Applicative (r (Grammar t)) where
+instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t) => Applicative (r (Grammar t)) where
   pure = embed1 . Nul
   liftA2 f a b = embed1 (Seq f a b)
 
-instance (Corecursive1 (r (Grammar t)), Base1 (r (Grammar t)) ~ Grammar t, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) where
+instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Recursive (r (Grammar t))) => Alternative (r (Grammar t)) where
   empty = embed1 (Err [])
   a <|> b = embed1 (Alt a b)
   many a = mu (\ more -> (:) <$> a <*> more <|> pure [])
   some a = (:) <$> a <*> many a
 
-instance (Corecursive1 (r (Grammar t)), Base1 (r (Grammar t)) ~ Grammar t, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
+instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Recursive (r (Grammar t))) => Parsing (r (Grammar t)) where
   try = id
   a <?> s = embed1 (Lab a s)
   eof = embed1 (End ())
   unexpected s = embed1 (Err [s])
   notFollowedBy a = a *> empty <|> pure ()
 
-instance (Corecursive1 (r (Grammar Char)), Base1 (r (Grammar Char)) ~ Grammar Char, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
+instance (Corecursive1 (r (Grammar Char)), Cobase1 (r (Grammar Char)) ~ Grammar Char, Recursive (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
   satisfy p = embed1 (Sat (\ c -> guard (p c) *> Just c))
 
-instance (Corecursive1 (r (Grammar Char)), Base1 (r (Grammar Char)) ~ Grammar Char, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
+instance (Corecursive1 (r (Grammar Char)), Cobase1 (r (Grammar Char)) ~ Grammar Char, Recursive (r (Grammar Char))) => TokenParsing (r (Grammar Char))
 
 instance H.Foldable (Grammar t) where
   foldMap f g = case g of

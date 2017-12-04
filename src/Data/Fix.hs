@@ -13,7 +13,6 @@ cata alg = alg . H.fmap (cata alg) . unFix
 instance Recursive (Fix f) where
   mu = fix
 
-type instance Base1 (Fix f) = f
-
 instance H.Functor f => Corecursive1 (Fix f) where
+  type Cobase1 (Fix f) = f
   embed1 = Fix
