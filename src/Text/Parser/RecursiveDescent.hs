@@ -3,9 +3,10 @@ module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
 
-import Control.Applicative
+import Data.Align
 import Data.Bifunctor
 import Data.Grammar
+import Data.Ord (comparing)
 import Data.Rec
 import Data.Result
 import Data.These
@@ -27,7 +28,7 @@ runGrammar grammar cs = result (Left . map formatError) Right $ do
           Nul a -> Success (a, cs)
           Sat p | c:cs' <- cs, Just a <- p c -> Success (a, cs')
                 | otherwise                  -> Failure [([], cs)]
-          Alt f a b -> first (f . This) <$> runK (go a) cs <|> first (f . That) <$> runK (go b) cs
+          Alt f a b -> alignWith (mergeTheseWith (first (f . This)) (first (f . That)) (minBy (comparing length))) (runK (go a) cs) (runK (go b) cs)
           Seq f a b -> do
             (a', cs')  <- runK (go a) cs
             let fa = f a'
@@ -37,6 +38,10 @@ runGrammar grammar cs = result (Left . map formatError) Right $ do
           Lab a s -> first (\ (_, cs) -> ([s], cs)) (runK (go a) cs)
           End a | [] <- cs  -> Success (a, [])
                 | otherwise -> Failure [(["eof"], cs)]
+
+minBy :: (a -> a -> Ordering) -> a -> a -> a
+minBy c a b | GT <- c a b = b
+            | otherwise   = a
 
 newtype K t a = K { runK :: State t -> Result (Error t) (a, State t) }
 
