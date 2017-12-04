@@ -10,7 +10,7 @@ import Data.Higher.Foldable as H
 import Data.Higher.Functor as H
 import Data.Higher.Functor.Classes as H
 import Data.Functor.Const
-import Data.Recursive
+import Data.Recursive hiding (cata)
 import Unsafe.Coerce
 
 -- | Lift a grammar @g@ indexed by types @a@ into a recursive grammar with nonterminals @n@.

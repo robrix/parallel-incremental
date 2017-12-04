@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts, RankNTypes, ScopedTypeVariables, TypeFamilies, TypeOperators #-}
 module Data.Recursive
 ( Recursive(..)
+, Recursive1(..)
 , Corecursive1(..)
 , chainl1
 ) where
@@ -10,6 +11,16 @@ import Data.Higher.Functor as H
 
 class Recursive m where
   mu :: (m a -> m a) -> m a
+
+class H.Functor (Base1 t) => Recursive1 t where
+  type Base1 t :: (* -> *) -> * -> *
+
+  project1 :: t ~> Base1 t t
+
+  cata :: forall a . (Base1 t a ~> a) -> t ~> a
+  cata algebra = go
+    where go :: t ~> a
+          go = algebra . H.fmap go . project1
 
 class H.Functor (Cobase1 t) => Corecursive1 t where
   type Cobase1 t :: (* -> *) -> * -> *
