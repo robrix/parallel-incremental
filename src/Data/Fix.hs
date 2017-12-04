@@ -7,8 +7,8 @@ import Data.Recursive
 
 newtype Fix f a = Fix { unFix :: f (Fix f) a }
 
-instance Recursive (Fix f) where
-  mu = fix
+instance Mu1 (Fix f) where
+  mu1 = fix
 
 instance H.Functor f => Recursive1 (Fix f) where
   type Base1 (Fix f) = f

@@ -33,16 +33,16 @@ instance Num (Expr Integer) where
   signum = Sig
 
 
-expr :: (Recursive m, TokenParsing m) => m (Expr Integer)
-expr = mu (\ expr -> term expr `chainl1` (Add <$ symbol "+" <|> Sub <$ symbol "-"))
+expr :: (Mu1 m, TokenParsing m) => m (Expr Integer)
+expr = mu1 (\ expr -> term expr `chainl1` (Add <$ symbol "+" <|> Sub <$ symbol "-"))
 
-term :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
+term :: (Mu1 m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 term expr = factor expr `chainl1` (Mul <$ symbol "*" <|> Div <$ symbol "/")
 
-factor :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
+factor :: (Mu1 m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 factor expr = app expr `chainl1` (Exp <$ symbol "^")
 
-app :: (Recursive m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
+app :: (Mu1 m, TokenParsing m) => m (Expr Integer) -> m (Expr Integer)
 app expr = Abs <$ symbol "abs" <*> atom expr <|> atom expr
 
 atom :: TokenParsing m => m (Expr Integer) -> m (Expr Integer)

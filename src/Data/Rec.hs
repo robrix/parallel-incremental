@@ -84,8 +84,8 @@ extend :: b a -> Env b -> (Name a, Env b)
 extend cont bs = (Name (length bs), Binding cont : bs)
 
 
-instance Recursive (Rec n g) where
-  mu f = Mu (f . Var)
+instance Mu1 (Rec n g) where
+  mu1 f = Mu (f . Var)
 
 instance H.Functor g => Corecursive1 (Rec n g) where
   type Cobase1 (Rec n g) = g
