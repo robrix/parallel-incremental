@@ -10,6 +10,7 @@ import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes as H
 import Data.Recursive
+import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -18,8 +19,8 @@ data Grammar t r a
   = Err [String]
   | Nul a
   | Sat (t -> Maybe a)
-  | forall c b . Alt (Either c    b -> a) (r c) (r b)
-  | forall c b . Seq (       c -> b -> a) (r c) (r b)
+  | forall c b . Alt (These c    b -> a) (r c) (r b)
+  | forall c b . Seq (      c -> b -> a) (r c) (r b)
   | Lab (r a) String
   | End a
 
@@ -43,7 +44,7 @@ instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t) => 
 
 instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Mu1 (r (Grammar t))) => Alternative (r (Grammar t)) where
   empty = embed1 (Err [])
-  a <|> b = embed1 (Alt (either id id) a b)
+  a <|> b = embed1 (Alt (mergeThese const) a b)
   many a = mu1 (\ more -> (:) <$> a <*> more <|> pure [])
   some a = (:) <$> a <*> many a
 

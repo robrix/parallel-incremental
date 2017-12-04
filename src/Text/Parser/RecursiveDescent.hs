@@ -6,6 +6,7 @@ module Text.Parser.RecursiveDescent
 import Data.Bifunctor
 import Data.Grammar
 import Data.Rec
+import Data.These
 import Data.List (intercalate)
 
 type State t = [t]
@@ -24,7 +25,7 @@ runGrammar grammar cs = first formatError $ do
           Nul a -> Right (a, cs)
           Sat p | c:cs' <- cs, Just a <- p c -> Right (a, cs')
                 | otherwise                  -> Left  ([], cs)
-          Alt f a b -> either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (first (f . Right) <$> runK (go b) cs)) Right (first (f . Left) <$> runK (go a) cs)
+          Alt f a b -> either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (first (f . That) <$> runK (go b) cs)) Right (first (f . This) <$> runK (go a) cs)
           Seq f a b -> do
             (a', cs')  <- runK (go a) cs
             let fa = f a'
