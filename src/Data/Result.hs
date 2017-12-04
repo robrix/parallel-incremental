@@ -41,3 +41,8 @@ instance Align (Result e) where
   alignWith f (Success a) _           = Success (f (This  a))
   alignWith f _           (Success b) = Success (f (That    b))
   alignWith _ (Failure a) (Failure b) = Failure (a ++ b)
+
+instance Monad (Result e) where
+  return = pure
+  Success a >>= f = f a
+  Failure e >>= _ = Failure e
