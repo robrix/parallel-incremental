@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts, TypeFamilies, TypeOperators #-}
 module Data.Recursive
 ( Recursive(..)
 , Base1
@@ -15,7 +15,7 @@ class Recursive m where
 type family Base1 (t :: * -> *) :: (* -> *) -> * -> *
 
 class H.Functor (Base1 t) => Corecursive1 t where
-  embed1 :: Base1 t t a -> t a
+  embed1 :: Base1 t t ~> t
 
 
 chainl1 :: (Alternative m, Recursive m) => m a -> m (a -> a -> a) -> m a
