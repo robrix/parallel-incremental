@@ -5,6 +5,7 @@ module Text.Parser.RecursiveDescent
 
 import Data.Align
 import Data.Bifunctor
+import Data.Delta
 import Data.Grammar
 import Data.Ord (comparing)
 import Data.Rec
@@ -12,44 +13,49 @@ import Data.Result
 import Data.These
 import Data.List (intercalate)
 
-type State t = [t]
+data State t
+  = State
+    { stateOffset :: {-# UNPACK #-} !Delta
+    , stateInput  ::                ![t]
+    }
+
 type Error t = ([String], State t)
 
 runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> State t -> Either [String] a
-runGrammar grammar cs = result (Left . map formatError) Right $ do
-  (a, cs) <- runK (iterRec algebra grammar) cs
-  if null cs then
+runGrammar grammar s = result (Left . map formatError) Right $ do
+  (a, s') <- runK (iterRec algebra grammar) s
+  if null (stateInput s') then
     Success a
   else
-    Failure [(["eof"], cs)]
+    Failure [(["eof"], s')]
   where algebra :: (forall a . r a -> K t a) -> Grammar t r a -> K t a
-        algebra go g = K $ \ cs -> case g of
-          Err es -> Failure [(es, cs)]
-          Nul a -> Success (a, cs)
-          Sat p | c:cs' <- cs, Just a <- p c -> Success (a, cs')
-                | otherwise                  -> Failure [([], cs)]
-          Alt f a b -> alignWith (mergeTheseWith (first (f . This)) (first (f . That)) (minBy (comparing length))) (runK (go a) cs) (runK (go b) cs)
+        algebra go g = K $ \ s -> case g of
+          Err e -> Failure [(e, s)]
+          Nul a -> Success (a, s)
+          Sat p | c:cs' <- stateInput s, Just a <- p c -> Success (a, s { stateInput = cs' })
+                | otherwise                            -> Failure [([], s)]
+          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), maxBy (comparing stateOffset) s1 s2))) (runK (go a) s) (runK (go b) s)
           Seq f a b -> do
-            (a', cs')  <- runK (go a) cs
+            (a', s')  <- runK (go a) s
             let fa = f a'
-            (b', cs'') <- fa `seq` runK (go b) cs'
+            (b', s'') <- fa `seq` runK (go b) s'
             let fab = fa b'
-            fab `seq` Success (fab, cs'')
-          Lab a s -> first (\ (_, cs) -> ([s], cs)) (runK (go a) cs)
-          End a | [] <- cs  -> Success (a, [])
-                | otherwise -> Failure [(["eof"], cs)]
+            fab `seq` Success (fab, s'')
+          Lab a l -> first (\ (_, s) -> ([l], s)) (runK (go a) s)
+          End a | [] <- stateInput s -> Success (a, s)
+                | otherwise          -> Failure [(["eof"], s)]
 
-minBy :: (a -> a -> Ordering) -> a -> a -> a
-minBy c a b | GT <- c a b = b
+maxBy :: (a -> a -> Ordering) -> a -> a -> a
+maxBy c a b | LT <- c a b = b
             | otherwise   = a
 
 newtype K t a = K { runK :: State t -> Result (Error t) (a, State t) }
 
 formatError :: Show t => Error t -> String
-formatError ([], []) = "no rule to match at eof"
-formatError ([], cs) = "no rule to match at " ++ show cs
-formatError (es, []) = "expected " ++ formatExpectation es ++ " at eof"
-formatError (es, cs) = "expected " ++ formatExpectation es ++ " at " ++ show cs
+formatError ([], (State _ [])) = "no rule to match at eof"
+formatError ([], (State _ cs)) = "no rule to match at " ++ show cs
+formatError (es, (State _ [])) = "expected " ++ formatExpectation es ++ " at eof"
+formatError (es, (State _ cs)) = "expected " ++ formatExpectation es ++ " at " ++ show cs
 
 formatExpectation :: [String] -> String
 formatExpectation [] = "eof"
