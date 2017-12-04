@@ -3,40 +3,42 @@ module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
 
+import Control.Applicative
 import Data.Bifunctor
 import Data.Grammar
 import Data.Rec
+import Data.Result
 import Data.These
 import Data.List (intercalate)
 
 type State t = [t]
 type Error t = ([String], State t)
 
-runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> State t -> Either String a
-runGrammar grammar cs = first formatError $ do
+runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> State t -> Either [String] a
+runGrammar grammar cs = result (Left . map formatError) Right $ do
   (a, cs) <- runK (iterRec algebra grammar) cs
   if null cs then
-    Right a
+    Success a
   else
-    Left  (["eof"], cs)
+    Failure [(["eof"], cs)]
   where algebra :: (forall a . r a -> K t a) -> Grammar t r a -> K t a
         algebra go g = K $ \ cs -> case g of
-          Err es -> Left (es, cs)
-          Nul a -> Right (a, cs)
-          Sat p | c:cs' <- cs, Just a <- p c -> Right (a, cs')
-                | otherwise                  -> Left  ([], cs)
-          Alt f a b -> either (\ (e1, _) -> first (\ (e2, cs) -> (e1 ++ e2, cs)) (first (f . That) <$> runK (go b) cs)) Right (first (f . This) <$> runK (go a) cs)
+          Err es -> Failure [(es, cs)]
+          Nul a -> Success (a, cs)
+          Sat p | c:cs' <- cs, Just a <- p c -> Success (a, cs')
+                | otherwise                  -> Failure [([], cs)]
+          Alt f a b -> first (f . This) <$> runK (go a) cs <|> first (f . That) <$> runK (go b) cs
           Seq f a b -> do
             (a', cs')  <- runK (go a) cs
             let fa = f a'
             (b', cs'') <- fa `seq` runK (go b) cs'
             let fab = fa b'
-            fab `seq` Right (fab, cs'')
+            fab `seq` Success (fab, cs'')
           Lab a s -> first (\ (_, cs) -> ([s], cs)) (runK (go a) cs)
-          End a | [] <- cs  -> Right (a, [])
-                | otherwise -> Left  (["eof"], cs)
+          End a | [] <- cs  -> Success (a, [])
+                | otherwise -> Failure [(["eof"], cs)]
 
-newtype K t a = K { runK :: State t -> Either (Error t) (a, State t) }
+newtype K t a = K { runK :: State t -> Result (Error t) (a, State t) }
 
 formatError :: Show t => Error t -> String
 formatError ([], []) = "no rule to match at eof"
