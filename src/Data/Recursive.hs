@@ -6,7 +6,6 @@ module Data.Recursive
 , chainl1
 ) where
 
-import Control.Arrow ((&&&))
 import Control.Applicative
 import Data.Higher.Functor as H
 import GHC.Generics
@@ -27,7 +26,12 @@ class H.Functor (Base1 t) => Recursive1 t where
   para :: forall a . (Base1 t (t :*: a) ~> a) -> t ~> a
   para algebra = go
     where go :: t ~> a
-          go = algebra . H.fmap (uncurry (:*:) . (id &&& go)) . project1
+          go = algebra . H.fmap (id &&& go) . project1
+
+(&&&) :: (a -> l b) -> (a -> r b) -> a -> (l :*: r) b
+f &&& g = \ a -> f a :*: g a
+
+infixr 3 &&&
 
 class H.Functor (Cobase1 t) => Corecursive1 t where
   type Cobase1 t :: (* -> *) -> * -> *
@@ -42,11 +46,11 @@ class H.Functor (Cobase1 t) => Corecursive1 t where
   apo :: forall a . (a ~> Cobase1 t (t :+: a)) -> a ~> t
   apo coalgebra = go
     where go :: a ~> t
-          go = embed1 . H.fmap (unSum id go) . coalgebra
+          go = embed1 . H.fmap (id ||| go) . coalgebra
 
-unSum :: (l a -> b) -> (r a -> b) -> (l :+: r) a -> b
-unSum f _ (L1 l) = f l
-unSum _ g (R1 r) = g r
+(|||) :: (l a -> b) -> (r a -> b) -> (l :+: r) a -> b
+f ||| g = \ s -> case s of L1 l -> f l
+                           R1 r -> g r
 
 chainl1 :: (Alternative m, Mu1 m) => m a -> m (a -> a -> a) -> m a
 chainl1 expr op = scan
