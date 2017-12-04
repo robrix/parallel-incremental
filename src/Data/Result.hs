@@ -3,12 +3,17 @@ module Data.Result where
 
 import Control.Applicative
 import Data.Align
+import Data.Bifunctor
 import Data.These
 
 data Result e a
   = Failure [e]
   | Success a
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
+
+instance Bifunctor Result where
+  bimap f _ (Failure e) = Failure (f <$> e)
+  bimap _ g (Success a) = Success (g a)
 
 instance Applicative (Result e) where
   pure = Success
