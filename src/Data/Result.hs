@@ -11,6 +11,11 @@ data Result e a
   | Success a
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
+result :: ([e] -> b) -> (a -> b) -> Result e a -> b
+result f _ (Failure e) = f e
+result _ g (Success a) = g a
+
+
 instance Bifunctor Result where
   bimap f _ (Failure e) = Failure (f <$> e)
   bimap _ g (Success a) = Success (g a)
