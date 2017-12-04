@@ -1,6 +1,6 @@
 module Data.Recursive
 ( Recursive(..)
-, Embed1(..)
+, Corecursive1(..)
 , chainl1
 ) where
 
@@ -9,7 +9,7 @@ import Control.Applicative
 class Recursive m where
   mu :: (m a -> m a) -> m a
 
-class Embed1 t where
+class Corecursive1 t where
   embed1 :: f (t f) a -> t f a
 
 

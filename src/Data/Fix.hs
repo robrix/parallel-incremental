@@ -13,5 +13,5 @@ cata alg = alg . H.fmap (cata alg) . unFix
 instance Recursive (Fix f) where
   mu = fix
 
-instance Embed1 Fix where
+instance Corecursive1 Fix where
   embed1 = Fix

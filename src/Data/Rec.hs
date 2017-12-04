@@ -87,7 +87,7 @@ extend cont bs = (Name (length bs), Binding cont : bs)
 instance Recursive (Rec n g) where
   mu f = Mu (f . Var)
 
-instance Embed1 (Rec n) where
+instance Corecursive1 (Rec n) where
   embed1 = In
 
 instance H.Show1 f => Show (Rec (Const Char) f a)
