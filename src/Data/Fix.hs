@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes, TypeOperators #-}
+{-# LANGUAGE RankNTypes, TypeFamilies, TypeOperators #-}
 module Data.Fix where
 
 import Data.Higher.Functor as H
@@ -13,5 +13,7 @@ cata alg = alg . H.fmap (cata alg) . unFix
 instance Recursive (Fix f) where
   mu = fix
 
-instance Corecursive1 Fix where
+type instance Base1 (Fix f) = f
+
+instance H.Functor f => Corecursive1 (Fix f) where
   embed1 = Fix
