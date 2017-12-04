@@ -1,5 +1,6 @@
 module Data.Delta where
 
+import Data.Function
 import Data.Semigroup
 
 data Delta
@@ -9,6 +10,9 @@ data Delta
     , deltaBytes   :: {-# UNPACK #-} !Int
     }
   deriving (Show)
+
+instance Eq Delta where
+  (==) = (==) `on` deltaBytes
 
 instance Semigroup Delta where
   Delta l1 c1 b1 <> Delta l2 c2 b2 = Delta (l1 + l2) (addColumns c1 c2) (b1 + b2)
