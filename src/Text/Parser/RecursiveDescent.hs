@@ -21,9 +21,9 @@ data State t
 
 type Error t = ([String], State t)
 
-runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> State t -> Either [String] a
-runGrammar grammar s = result (Left . map formatError) Right $ do
-  (a, s') <- runK (iterRec algebra grammar) s
+runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> [t] -> Either [String] a
+runGrammar grammar ts = result (Left . map formatError) Right $ do
+  (a, s') <- runK (iterRec algebra grammar) (State mempty ts)
   if null (stateInput s') then
     Success a
   else
