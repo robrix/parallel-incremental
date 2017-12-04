@@ -18,8 +18,8 @@ data Grammar t r a
   = Err [String]
   | Nul a
   | Sat (t -> Maybe a)
-  | Alt (r a) (r a)
-  | forall c b . Seq (c -> b -> a) (r c) (r b)
+  | forall c b . Alt (Either c    b -> a) (r c) (r b)
+  | forall c b . Seq (       c -> b -> a) (r c) (r b)
   | Lab (r a) String
   | End a
 
@@ -28,7 +28,7 @@ instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
     Err es    -> showsUnaryWith   showsPrec              "Err" d es
     Nul a     -> showsUnaryWith   hide                   "Nul" d a
     Sat p     -> showsUnaryWith   hide                   "Sat" d p
-    Alt a b   -> showsBinaryWith  sp        sp           "Alt" d a b
+    Alt f a b -> showsTernaryWith hide      sp        sp "Alt" d f a b
     Seq f a b -> showsTernaryWith hide      sp        sp "Seq" d f a b
     Lab r s   -> showsBinaryWith  sp        showsPrec    "Lab" d r s
     End a     -> showsUnaryWith   hide                   "End" d a
@@ -43,7 +43,7 @@ instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t) => 
 
 instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Mu1 (r (Grammar t))) => Alternative (r (Grammar t)) where
   empty = embed1 (Err [])
-  a <|> b = embed1 (Alt a b)
+  a <|> b = embed1 (Alt (either id id) a b)
   many a = mu1 (\ more -> (:) <$> a <*> more <|> pure [])
   some a = (:) <$> a <*> many a
 
@@ -64,7 +64,7 @@ instance H.Foldable (Grammar t) where
     Err _     -> H.mempty
     Nul _     -> H.mempty
     Sat _     -> H.mempty
-    Alt a b   -> f a H.<> f b
+    Alt _ a b -> f a H.<> f b
     Seq _ a b -> f a H.<> f b
     Lab r _   -> f r
     End _     -> H.mempty
@@ -74,7 +74,7 @@ instance H.Functor (Grammar t) where
     Err es    -> Err es
     Nul a     -> Nul a
     Sat p     -> Sat p
-    Alt a b   -> Alt (f a) (f b)
+    Alt g a b -> Alt g (f a) (f b)
     Seq g a b -> Seq g (f a) (f b)
     Lab r s   -> Lab (f r) s
     End a     -> End a
