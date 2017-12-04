@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, RankNTypes, TypeFamilies, TypeOperators #-}
+{-# LANGUAGE FlexibleContexts, RankNTypes, ScopedTypeVariables, TypeFamilies, TypeOperators #-}
 module Data.Recursive
 ( Recursive(..)
 , Corecursive1(..)
@@ -15,6 +15,11 @@ class H.Functor (Cobase1 t) => Corecursive1 t where
   type Cobase1 t :: (* -> *) -> * -> *
 
   embed1 :: Cobase1 t t ~> t
+
+  ana :: forall a . (a ~> Cobase1 t a) -> a ~> t
+  ana coalgebra = go
+    where go :: a ~> t
+          go = embed1 . H.fmap go . coalgebra
 
 
 chainl1 :: (Alternative m, Recursive m) => m a -> m (a -> a -> a) -> m a
