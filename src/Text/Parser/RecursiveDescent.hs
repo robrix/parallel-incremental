@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFunctor, GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
 module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
@@ -18,7 +18,6 @@ data State t
     { stateOffset :: {-# UNPACK #-} !Delta
     , stateInput  ::                ![t]
     }
-  deriving (Functor)
 
 type Error t = ([String], State t)
 
@@ -66,8 +65,3 @@ instance Eq (State t) where
 
 instance Ord (State t) where
   compare = compare `on` stateOffset
-
-instance Align State where
-  nil = State mempty []
-
-  alignWith f (State o1 i1) (State o2 i2) = State (max o1 o2) (alignWith f i1 i2)
