@@ -69,6 +69,9 @@ formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
 instance Eq (State t) where
   (==) = (==) `on` stateOffset
 
+instance Ord (State t) where
+  compare = compare `on` stateOffset
+
 instance Align State where
   nil = State mempty []
 
