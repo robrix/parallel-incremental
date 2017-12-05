@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE DeriveFunctor, GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
 module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
@@ -18,6 +18,7 @@ data State t
     { stateOffset :: {-# UNPACK #-} !Delta
     , stateInput  ::                ![t]
     }
+  deriving (Functor)
 
 type Error t = ([String], State t)
 
