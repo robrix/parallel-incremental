@@ -35,7 +35,7 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
           Nul a -> Success (a, s)
           Sat p | c:cs' <- stateInput s, Just a <- p c -> Success (a, s { stateInput = cs' })
                 | otherwise                            -> Failure [([], s)]
-          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), max s1 s2))) (runK (go a) s) (runK (go b) s)
+          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runK (go a) s) (runK (go b) s)
           Seq f a b -> do
             (a', s')  <- runK (go a) s
             let fa = f a'
