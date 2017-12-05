@@ -8,7 +8,6 @@ import Data.Bifunctor
 import Data.Delta
 import Data.Function (on)
 import Data.Grammar
-import Data.Ord (comparing)
 import Data.Rec
 import Data.Result
 import Data.These
@@ -36,7 +35,7 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
           Nul a -> Success (a, s)
           Sat p | c:cs' <- stateInput s, Just a <- p c -> Success (a, s { stateInput = cs' })
                 | otherwise                            -> Failure [([], s)]
-          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), maxBy (comparing stateOffset) s1 s2))) (runK (go a) s) (runK (go b) s)
+          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), max s1 s2))) (runK (go a) s) (runK (go b) s)
           Seq f a b -> do
             (a', s')  <- runK (go a) s
             let fa = f a'
@@ -46,10 +45,6 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
           Lab a l -> first (\ (_, s) -> ([l], s)) (runK (go a) s)
           End a | [] <- stateInput s -> Success (a, s)
                 | otherwise          -> Failure [(["eof"], s)]
-
-maxBy :: (a -> a -> Ordering) -> a -> a -> a
-maxBy c a b | LT <- c a b = b
-            | otherwise   = a
 
 newtype K t a = K { runK :: State t -> Result (Error t) (a, State t) }
 
