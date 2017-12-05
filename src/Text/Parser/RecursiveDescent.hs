@@ -63,3 +63,9 @@ formatExpectation [] = "eof"
 formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
+
+
+instance Align State where
+  nil = State mempty []
+
+  alignWith f (State o1 i1) (State o2 i2) = State (max o1 o2) (alignWith f i1 i2)
