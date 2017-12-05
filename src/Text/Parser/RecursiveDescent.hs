@@ -6,6 +6,7 @@ module Text.Parser.RecursiveDescent
 import Data.Align
 import Data.Bifunctor
 import Data.Delta
+import Data.Function (on)
 import Data.Grammar
 import Data.Ord (comparing)
 import Data.Rec
@@ -64,6 +65,9 @@ formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
 
+
+instance Eq (State t) where
+  (==) = (==) `on` stateOffset
 
 instance Align State where
   nil = State mempty []
