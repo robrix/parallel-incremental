@@ -52,6 +52,8 @@ class H.Functor (Cobase1 t) => Corecursive1 t where
 f ||| g = \ s -> case s of L1 l -> f l
                            R1 r -> g r
 
+infixr 2 |||
+
 chainl1 :: (Alternative m, Mu1 m) => m a -> m (a -> a -> a) -> m a
 chainl1 expr op = scan
   where scan = expr <**> rst
