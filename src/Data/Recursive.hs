@@ -2,7 +2,11 @@
 module Data.Recursive
 ( Mu1(..)
 , Recursive1(..)
+, Cofree(..)
+, histo
 , Corecursive1(..)
+, Free(..)
+, futu
 , chainl1
 ) where
 
