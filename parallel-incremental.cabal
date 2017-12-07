@@ -34,6 +34,7 @@ library
                      , Text.Parser.Deterministic
                      , Text.Parser.RecursiveDescent
                      , Text.Parser.Valiant
+                     , Text.Printer.RecursiveAscent
   build-depends:       base >=4.10 && <4.11
                      , parsers
                      , these
