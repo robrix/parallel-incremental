@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE GADTs, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables, TypeOperators #-}
 module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
@@ -8,6 +8,7 @@ import Data.Bifunctor
 import Data.Delta
 import Data.Function (on)
 import Data.Grammar
+import Data.Higher.Functor as H
 import Data.Rec
 import Data.Result
 import Data.These
@@ -28,7 +29,7 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
     Success a
   else
     Failure [(["eof"], s')]
-  where algebra :: (forall a . r a -> K t a) -> Grammar t r a -> K t a
+  where algebra :: (r ~> K t) -> Grammar t r ~> K t
         algebra go g = K $ \ s -> case g of
           Err e -> Failure [(e, s)]
           Nul a -> Success (a, s)
