@@ -63,6 +63,16 @@ f ||| g = \ s -> case s of L1 l -> f l
 
 infixr 2 |||
 
+data Free f a x = Pure (a x) | Free (f (Free f a) x)
+
+futu :: forall t a . Corecursive1 t => (a ~> Cobase1 t (Free (Cobase1 t) a)) -> a ~> t
+futu coalg = go . Pure
+  where go :: Free (Cobase1 t) a ~> t
+        go = embed1 . H.fmap go . decorate
+        decorate :: Free (Cobase1 t) a ~> Cobase1 t (Free (Cobase1 t) a)
+        decorate (Pure a) = coalg a
+        decorate (Free r) = r
+
 chainl1 :: (Alternative m, Mu1 m) => m a -> m (a -> a -> a) -> m a
 chainl1 expr op = scan
   where scan = expr <**> rst
