@@ -33,6 +33,15 @@ f &&& g = \ a -> f a :*: g a
 
 infixr 3 &&&
 
+data Cofree f a x = Cofree { extract :: a x, unwrap :: f (Cofree f a) x }
+
+histo :: forall t a . Recursive1 t => (Base1 t (Cofree (Base1 t) a) ~> a) -> t ~> a
+histo alg = extract . go
+  where go :: t ~> Cofree (Base1 t) a
+        go = decorate . H.fmap go . project1
+        decorate :: Base1 t (Cofree (Base1 t) a) ~> Cofree (Base1 t) a
+        decorate r = Cofree (alg r) r
+
 class H.Functor (Cobase1 t) => Corecursive1 t where
   type Cobase1 t :: (* -> *) -> * -> *
 
