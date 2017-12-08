@@ -19,10 +19,10 @@ library
                      , Data.Higher.Function
                      , Data.Higher.Functor
                      , Data.Higher.Functor.Classes
+                     , Data.Higher.Functor.Foldable
                      , Data.Higher.Monoid
                      , Data.Higher.Semigroup
                      , Data.Rec
-                     , Data.Recursive
                      , Data.Result
                      , Data.Semiring
                      , Data.Sparse.Matrix

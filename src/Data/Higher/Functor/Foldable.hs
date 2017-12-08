@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, RankNTypes, ScopedTypeVariables, TypeFamilies, TypeOperators #-}
-module Data.Recursive
+module Data.Higher.Functor.Foldable
 ( Mu1(..)
 , Recursive1(..)
 , Cofree(..)

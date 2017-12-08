@@ -1,7 +1,7 @@
 module Example.Lambda where
 
 import Control.Applicative
-import Data.Recursive
+import Data.Higher.Functor.Foldable
 import Text.Parser.Char
 import Text.Parser.Combinators hiding (chainl1)
 import Text.Parser.Token

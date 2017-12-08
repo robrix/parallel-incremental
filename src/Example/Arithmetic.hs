@@ -4,7 +4,7 @@ module Example.Arithmetic where
 import Control.Applicative
 import Control.Monad (guard)
 import Data.Foldable (foldl')
-import Data.Recursive
+import Data.Higher.Functor.Foldable
 import Text.Parser.Token
 
 data Expr a where

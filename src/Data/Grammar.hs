@@ -9,7 +9,7 @@ import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes as H
-import Data.Recursive
+import Data.Higher.Functor.Foldable
 import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators

@@ -1,9 +1,9 @@
 {-# LANGUAGE RankNTypes, TypeFamilies, TypeOperators #-}
 module Data.Fix where
 
-import Data.Higher.Functor as H
 import Data.Function (fix)
-import Data.Recursive
+import Data.Higher.Functor as H
+import Data.Higher.Functor.Foldable
 
 newtype Fix f a = Fix { unFix :: f (Fix f) a }
 
