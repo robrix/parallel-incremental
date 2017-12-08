@@ -23,7 +23,7 @@ runCogrammar cogrammar a = runK (iterRec algebra cogrammar) a
         algebra go g = K $ \ s -> case g of
           Err _ -> []
           Nul _ -> []
-          Sat _ -> []
+          Sat p -> pure <$> p s
           Alt f a b -> mergeTheseWith (runK (go a)) (runK (go b)) (<>) (f s)
           Seq f a b -> let (s1, s2) = f s in (<>) <$> runK (go a) s1 <*> runK (go b) s2
           Lab a _ -> runK (go a) s
