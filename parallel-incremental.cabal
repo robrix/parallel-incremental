@@ -13,6 +13,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Control.Higher.Comonad.Cofree
+                     , Control.Higher.Monad.Free
                      , Data.Delta
                      , Data.Fix
                      , Data.Grammar

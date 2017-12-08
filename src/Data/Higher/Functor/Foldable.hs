@@ -12,6 +12,7 @@ module Data.Higher.Functor.Foldable
 
 import Control.Applicative
 import Control.Higher.Comonad.Cofree
+import Control.Higher.Monad.Free
 import Data.Higher.Functor as H
 import GHC.Generics
 
@@ -65,8 +66,6 @@ f ||| g = \ s -> case s of L1 l -> f l
                            R1 r -> g r
 
 infixr 2 |||
-
-data Free f a x = Pure (a x) | Free (f (Free f a) x)
 
 futu :: forall t a . Corecursive1 t => (a ~> Cobase1 t (Free (Cobase1 t) a)) -> a ~> t
 futu coalg = go . Pure
