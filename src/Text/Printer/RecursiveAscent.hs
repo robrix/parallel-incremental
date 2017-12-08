@@ -3,7 +3,7 @@ module Text.Printer.RecursiveAscent
 ( runCogrammar
 ) where
 
-import Data.Higher.Functor
+import Data.Higher.Function
 import Data.Rec
 import Data.Semigroup
 import Data.These
