@@ -10,8 +10,8 @@ data Cogrammar t r a
   = Err [String]
   | Nul a
   | Sat (t -> Maybe a)
-  | forall c b . Alt (a -> These c  b)  (r c) (r b)
-  | forall c b . Seq (a ->      (c, b)) (r c) (r b)
+  | forall b c . Alt (a -> These c  b)  (r c) (r b)
+  | forall b c . Seq (a ->      (c, b)) (r c) (r b)
   | Lab (r a) String
   | End a
 
