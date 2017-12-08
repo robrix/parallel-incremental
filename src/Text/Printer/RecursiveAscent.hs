@@ -5,6 +5,7 @@ module Text.Printer.RecursiveAscent
 
 import Data.Higher.Functor
 import Data.Rec
+import Data.Semigroup
 import Data.These
 
 data Cogrammar t r a
@@ -23,7 +24,7 @@ runCogrammar cogrammar a = runK (iterRec algebra cogrammar) a
           Err _ -> []
           Nul _ -> []
           Sat _ -> []
-          Alt _ _ _ -> []
+          Alt f a b -> mergeTheseWith (runK (go a)) (runK (go b)) (<>) (f s)
           Seq _ _ _ -> []
           Lab a _ -> runK (go a) s
           End _ -> []
