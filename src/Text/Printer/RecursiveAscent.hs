@@ -3,7 +3,6 @@ module Text.Printer.RecursiveAscent
 ( runCogrammar
 ) where
 
-import Data.Bifunctor
 import Data.Higher.Functor
 import Data.Rec
 import Data.Semigroup
@@ -18,7 +17,7 @@ data Cogrammar t r a
   | Lab (r a) String
   | End a
 
-runCogrammar :: Show t => (forall n . Rec n (Cogrammar t) a) -> a -> [t]
+runCogrammar :: Show t => (forall n . Rec n (Cogrammar t) a) -> a -> [[t]]
 runCogrammar cogrammar a = runK (iterRec algebra cogrammar) a
   where algebra :: (r ~> K t) -> Cogrammar t r ~> K t
         algebra go g = K $ \ s -> case g of
@@ -26,8 +25,8 @@ runCogrammar cogrammar a = runK (iterRec algebra cogrammar) a
           Nul _ -> []
           Sat _ -> []
           Alt f a b -> mergeTheseWith (runK (go a)) (runK (go b)) (<>) (f s)
-          Seq f a b -> uncurry (<>) (bimap (runK (go a)) (runK (go b)) (f s))
+          Seq f a b -> let (s1, s2) = f s in (<>) <$> runK (go a) s1 <*> runK (go b) s2
           Lab a _ -> runK (go a) s
           End _ -> []
 
-newtype K t a = K { runK :: a -> [t] }
+newtype K t a = K { runK :: a -> [[t]] }
