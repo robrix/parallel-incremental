@@ -11,7 +11,7 @@ import Data.These
 data Cogrammar t r a
   = Err [String]
   | Nul a
-  | Sat (a -> t)
+  | Sat (a -> [t])
   | forall b c . Alt (a -> These c  b)  (r c) (r b)
   | forall b c . Seq (a ->      (c, b)) (r c) (r b)
   | Lab (r a) String
