@@ -1,6 +1,6 @@
 {-# LANGUAGE ExistentialQuantification, RankNTypes, TypeOperators #-}
 module Text.Printer.RecursiveAscent
-( runGrammar
+( runCogrammar
 ) where
 
 import Data.Higher.Functor
@@ -16,8 +16,8 @@ data Cogrammar t r a
   | Lab (r a) String
   | End a
 
-runGrammar :: Show t => (forall n . Rec n (Cogrammar t) a) -> a -> [t]
-runGrammar cogrammar a = runK (iterRec algebra cogrammar) a
+runCogrammar :: Show t => (forall n . Rec n (Cogrammar t) a) -> a -> [t]
+runCogrammar cogrammar a = runK (iterRec algebra cogrammar) a
   where algebra :: (r ~> K t) -> Cogrammar t r ~> K t
         algebra go g = K $ \ s -> case g of
           Err _ -> []
