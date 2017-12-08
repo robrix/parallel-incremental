@@ -12,7 +12,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Delta
+  exposed-modules:     Control.Higher.Comonad.Cofree
+                     , Data.Delta
                      , Data.Fix
                      , Data.Grammar
                      , Data.Higher.Foldable

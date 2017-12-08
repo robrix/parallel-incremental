@@ -11,6 +11,7 @@ module Data.Higher.Functor.Foldable
 ) where
 
 import Control.Applicative
+import Control.Higher.Comonad.Cofree
 import Data.Higher.Functor as H
 import GHC.Generics
 
@@ -36,8 +37,6 @@ class H.Functor (Base1 t) => Recursive1 t where
 f &&& g = \ a -> f a :*: g a
 
 infixr 3 &&&
-
-data Cofree f a x = Cofree { extract :: a x, unwrap :: f (Cofree f a) x }
 
 histo :: forall t a . Recursive1 t => (Base1 t (Cofree (Base1 t) a) ~> a) -> t ~> a
 histo alg = extract . go
