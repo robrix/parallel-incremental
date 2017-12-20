@@ -4,8 +4,8 @@ module Control.Higher.Applicative
 , module F
 ) where
 
-import Data.Higher.Functor as H
 import Data.Higher.Function as F
+import Data.Higher.Functor as H
 import Prelude hiding (Applicative(..))
 
 class H.Functor f => Applicative f where
