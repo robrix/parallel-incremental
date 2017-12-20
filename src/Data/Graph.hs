@@ -17,7 +17,7 @@ dotGraph :: Show a => Graph a -> ShowS
 dotGraph Graph{..} = showString "digraph " . maybe id showString graphName . showBraces True (showChar '\n' . foldr ((.) . dotVertex) id graphVertices . foldr ((.) . dotEdge) id graphEdges)
 
 dotVertex :: Show a => Vertex a -> ShowS
-dotVertex Vertex{..} = showChar '\t' . shows vertexIdentifier . showBrackets True (maybe id ((showString "label = " .) . shows) vertexValue) . showString ";\n"
+dotVertex Vertex{..} = showChar '\t' . shows vertexIdentifier . showBrackets True (showString "label = " . maybe (shows "") shows vertexValue) . showString ";\n"
 
 dotEdge :: Edge -> ShowS
 dotEdge Edge{..} = showChar '\t' . shows edgeFrom . showString " -> " . shows edgeTo . showString ";\n"
