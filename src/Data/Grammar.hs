@@ -4,6 +4,7 @@ module Data.Grammar
 ) where
 
 import Control.Applicative
+import qualified Control.Higher.Applicative as H
 import Control.Monad (guard)
 import Data.Graph
 import qualified Data.Higher.Foldable as H
@@ -11,6 +12,7 @@ import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes as H
 import Data.Higher.Functor.Foldable
+import qualified Data.Higher.Traversable as H
 import Data.Rec
 import Data.These
 import Text.Parser.Char
@@ -85,3 +87,13 @@ instance H.Functor (Grammar t) where
     Seq g a b -> Seq g (f a) (f b)
     Lab r s   -> Lab (f r) s
     End a     -> End a
+
+instance H.Traversable (Grammar t) where
+  traverse f g = case g of
+    Err es    -> H.pure (Err es)
+    Nul a     -> H.pure (Nul a)
+    Sat p     -> H.pure (Sat p)
+    Alt g a b -> H.liftA2 (Alt g) (f a) (f b)
+    Seq g a b -> H.liftA2 (Seq g) (f a) (f b)
+    Lab r s   -> flip Lab s H.<$> f r
+    End a     -> H.pure (End a)
