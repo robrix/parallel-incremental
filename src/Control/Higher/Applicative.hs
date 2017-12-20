@@ -9,3 +9,5 @@ import Prelude hiding (Applicative(..))
 
 class Applicative f where
   pure :: a ~> f a
+
+  (<*>) :: f (a :-> b) x -> f a x -> f b x
