@@ -14,3 +14,4 @@ class (H.Foldable t, H.Functor t) => Traversable t where
   traverse :: H.Applicative f => (a ~> f b) -> t a ~> f (t b)
 
   sequenceA :: H.Applicative f => t (f a) ~> f (t a)
+  sequenceA = traverse id
