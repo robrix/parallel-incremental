@@ -36,3 +36,7 @@ showBrackets True s = showChar '[' . s . showChar ']'
 
 instance Eq a => Semigroup (Graph a) where
   Graph v1 e1 <> Graph v2 e2 = Graph (v1 `union` v2) (e1 `union` e2)
+
+instance Eq a => Monoid (Graph a) where
+  mempty = Graph [] []
+  mappend = (<>)
