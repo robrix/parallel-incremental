@@ -13,5 +13,9 @@ class Functor f where
   (<$) :: (forall x . b x) -> f a ~> f b
   a <$ r = fmap (const a) r
 
+  infixl 4 <$
+
 (<$>) :: Functor f => (a ~> b) -> f a ~> f b
 (<$>) = fmap
+
+infixl 4 <$>

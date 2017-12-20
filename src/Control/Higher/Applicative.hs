@@ -14,11 +14,17 @@ class H.Functor f => Applicative f where
   (<*>) :: f (a :-> b) x -> f a x -> f b x
   (<*>) = liftA2 unA
 
+  infixl 4 <*>
+
   (<*) :: f a x -> f b x -> f a x
   (<*) = liftA2 const
 
+  infixl 4 <*
+
   (*>) :: f a x -> f b x -> f b x
   (*>) = liftA2 (const id)
+
+  infixl 4 *>
 
   liftA2 :: (forall x. a x -> b x -> c x) -> f a x -> f b x -> f c x
   liftA2 f x = (H.fmap (A . f) x <*>)
