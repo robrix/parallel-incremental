@@ -1,6 +1,9 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards #-}
 module Data.Graph where
 
+import Data.List (union)
+import Data.Semigroup
+
 data Graph a = Graph { graphVertices :: [Vertex a], graphEdges :: [Edge] }
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
@@ -29,3 +32,7 @@ showBraces True s = showChar '{' . s . showChar '}'
 showBrackets :: Bool -> ShowS -> ShowS
 showBrackets False s = s
 showBrackets True s = showChar '[' . s . showChar ']'
+
+
+instance Eq a => Semigroup (Graph a) where
+  Graph v1 e1 <> Graph v2 e2 = Graph (v1 `union` v2) (e1 `union` e2)
