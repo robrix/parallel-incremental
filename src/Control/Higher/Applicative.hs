@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 module Control.Higher.Applicative
 ( Applicative(..)
 , module F
@@ -7,3 +8,4 @@ import Data.Higher.Function as F
 import Prelude hiding (Applicative(..))
 
 class Applicative f where
+  pure :: a ~> f a
