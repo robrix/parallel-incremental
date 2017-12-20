@@ -12,6 +12,7 @@ class H.Functor f => Applicative f where
   pure :: a ~> f a
 
   (<*>) :: f (a :-> b) x -> f a x -> f b x
+  (<*>) = liftA2 unA
 
   (<*) :: f a x -> f b x -> f a x
   (<*) = liftA2 const
