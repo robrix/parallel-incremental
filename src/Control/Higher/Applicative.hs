@@ -11,22 +11,6 @@ import Prelude hiding (Applicative(..))
 class H.Functor f => Applicative f where
   pure :: a ~> f a
 
-  (<*>) :: f (a :-> b) x -> f a x -> f b x
-  (<*>) = liftA2 unA
+  liftA2 :: (a x -> b y -> c z) -> f a x -> f b y -> f c z
 
-  infixl 4 <*>
-
-  (<*) :: f a x -> f b x -> f a x
-  u <* v = H.A . const H.<$> u <*> v
-
-  infixl 4 <*
-
-  (*>) :: f a x -> f b x -> f b x
-  u *> v = H.A id H.<$ u <*> v
-
-  infixl 4 *>
-
-  liftA2 :: (forall x. a x -> b x -> c x) -> f a y -> f b y -> f c y
-  liftA2 f x = (H.fmap (A . f) x <*>)
-
-  {-# MINIMAL pure, ((<*>) | liftA2) #-}
+  {-# MINIMAL pure, liftA2 #-}
