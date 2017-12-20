@@ -27,7 +27,7 @@ data Grammar t r a
   | End a
 
 toGraph :: Rec n (Grammar t) a -> Graph a
-toGraph _ = Graph Nothing [] []
+toGraph _ = Graph [] []
 
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where

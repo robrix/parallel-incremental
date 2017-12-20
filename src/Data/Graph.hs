@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards #-}
 module Data.Graph where
 
-data Graph a = Graph { graphName :: Maybe String, graphVertices :: [Vertex a], graphEdges :: [Edge] }
+data Graph a = Graph { graphVertices :: [Vertex a], graphEdges :: [Edge] }
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 data Vertex a = Vertex { vertexIdentifier :: Int, vertexValue :: Maybe a }
@@ -14,7 +14,7 @@ dot :: Show a => Graph a -> String
 dot g = dotGraph g ""
 
 dotGraph :: Show a => Graph a -> ShowS
-dotGraph Graph{..} = showString "digraph " . maybe id showString graphName . showBraces True (showChar '\n' . foldr ((.) . dotVertex) id graphVertices . foldr ((.) . dotEdge) id graphEdges)
+dotGraph Graph{..} = showString "digraph " . showBraces True (showChar '\n' . foldr ((.) . dotVertex) id graphVertices . foldr ((.) . dotEdge) id graphEdges)
 
 dotVertex :: Show a => Vertex a -> ShowS
 dotVertex Vertex{..} = showChar '\t' . shows vertexIdentifier . showBrackets True (showString "label = " . maybe (shows "") shows vertexValue) . showString ";\n"
