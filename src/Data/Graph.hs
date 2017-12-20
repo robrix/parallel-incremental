@@ -1,7 +1,8 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards #-}
 module Data.Graph where
 
-import Data.List (union)
+import Data.Function (on)
+import Data.List (union, unionBy)
 import Data.Semigroup
 
 data Graph a = Graph { graphVertices :: [Vertex a], graphEdges :: [Edge] }
@@ -34,9 +35,9 @@ showBrackets False s = s
 showBrackets True s = showChar '[' . s . showChar ']'
 
 
-instance Eq a => Semigroup (Graph a) where
-  Graph v1 e1 <> Graph v2 e2 = Graph (v1 `union` v2) (e1 `union` e2)
+instance Semigroup (Graph a) where
+  Graph v1 e1 <> Graph v2 e2 = Graph (unionBy ((==) `on` vertexIdentifier) v1 v2) (e1 `union` e2)
 
-instance Eq a => Monoid (Graph a) where
+instance Monoid (Graph a) where
   mempty = Graph [] []
   mappend = (<>)
