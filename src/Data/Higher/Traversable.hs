@@ -11,3 +11,5 @@ import Prelude hiding (Traversable(..))
 
 class H.Foldable t => Traversable t where
   traverse :: H.Applicative f => (a ~> f b) -> t a ~> f (t b)
+
+  sequenceA :: H.Applicative f => t (f a) ~> f (t a)
