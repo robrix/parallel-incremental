@@ -17,12 +17,12 @@ class H.Functor f => Applicative f where
   infixl 4 <*>
 
   (<*) :: f a x -> f b x -> f a x
-  (<*) = liftA2 const
+  u <* v = H.A . const H.<$> u <*> v
 
   infixl 4 <*
 
   (*>) :: f a x -> f b x -> f b x
-  (*>) = liftA2 (const id)
+  u *> v = H.A id H.<$ u <*> v
 
   infixl 4 *>
 
