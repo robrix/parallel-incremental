@@ -25,6 +25,7 @@ library
                      , Data.Higher.Functor.Foldable
                      , Data.Higher.Monoid
                      , Data.Higher.Semigroup
+                     , Data.Higher.Traversable
                      , Data.Rec
                      , Data.Result
                      , Data.Semiring
