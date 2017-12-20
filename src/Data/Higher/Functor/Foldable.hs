@@ -13,7 +13,7 @@ module Data.Higher.Functor.Foldable
 import Control.Applicative
 import Control.Higher.Comonad.Cofree
 import Control.Higher.Monad.Free
-import Data.Higher.Functor as H
+import Data.Higher.Functor as H hiding ((<$>))
 import GHC.Generics
 
 class Mu1 t where
