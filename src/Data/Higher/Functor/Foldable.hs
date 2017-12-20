@@ -85,3 +85,8 @@ instance H.Functor f => Recursive1 (Cofree f a) where
   type Base1 (Cofree f a) = CofreeF f a
 
   project1 (Cofree h t) = CofreeF h t
+
+instance H.Functor f => Corecursive1 (Cofree f a) where
+  type Cobase1 (Cofree f a) = CofreeF f a
+
+  embed1 (CofreeF h t) = Cofree h t
