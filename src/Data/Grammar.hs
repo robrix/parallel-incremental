@@ -26,7 +26,7 @@ data Grammar t r a
   | Lab (r a) String
   | End a
 
-toGraph :: Rec n (Grammar t) a -> Graph a
+toGraph :: (forall n . Rec n (Grammar t) a) -> Graph a
 toGraph _ = mempty
 
 
