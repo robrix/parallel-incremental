@@ -79,3 +79,9 @@ chainl1 :: (Alternative m, Mu1 m) => m a -> m (a -> a -> a) -> m a
 chainl1 expr op = scan
   where scan = expr <**> rst
         rst = mu1 (\ more -> (\f y g x -> g (f x y)) <$> op <*> expr <*> more <|> pure id)
+
+
+instance H.Functor f => Recursive1 (Cofree f a) where
+  type Base1 (Cofree f a) = CofreeF f a
+
+  project1 (Cofree h t) = CofreeF h t
