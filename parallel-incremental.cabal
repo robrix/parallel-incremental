@@ -17,6 +17,7 @@ library
                      , Data.Delta
                      , Data.Fix
                      , Data.Grammar
+                     , Data.Graph
                      , Data.Higher.Foldable
                      , Data.Higher.Function
                      , Data.Higher.Functor
