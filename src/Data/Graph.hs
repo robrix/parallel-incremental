@@ -3,7 +3,7 @@ module Data.Graph where
 
 import Data.Function (on)
 import Data.List (union, unionBy)
-import Data.Semigroup
+import Data.Semiring
 
 data Graph a = Graph { graphVertices :: [Vertex a], graphEdges :: [Edge] }
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
@@ -41,3 +41,6 @@ instance Semigroup (Graph a) where
 instance Monoid (Graph a) where
   mempty = Graph [] []
   mappend = (<>)
+
+instance Semiring (Graph a) where
+  Graph v1 e1 >< Graph v2 e2 = Graph (unionBy ((==) `on` vertexIdentifier) v1 v2) (e1 `union` e2 `union` ((Edge `on` vertexIdentifier) <$> v1 <*> v2))
