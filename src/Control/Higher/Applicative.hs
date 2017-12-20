@@ -22,3 +22,5 @@ class H.Functor f => Applicative f where
 
   liftA2 :: (forall x. a x -> b x -> c x) -> f a x -> f b x -> f c x
   liftA2 f x = (H.fmap (A . f) x <*>)
+
+  {-# MINIMAL pure, ((<*>) | liftA2) #-}
