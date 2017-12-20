@@ -16,4 +16,7 @@ class H.Functor f => Applicative f where
   (<*) :: f a x -> f b x -> f a x
   (<*) = liftA2 const
 
+  (*>) :: f a x -> f b x -> f b x
+  (*>) = liftA2 (const id)
+
   liftA2 :: (forall x. a x -> b x -> c x) -> f a x -> f b x -> f c x
