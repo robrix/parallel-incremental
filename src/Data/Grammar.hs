@@ -6,12 +6,14 @@ module Data.Grammar
 import Control.Applicative
 import qualified Control.Higher.Applicative as H
 import Control.Monad (guard)
+import Data.Graph
 import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
 import Data.Higher.Functor.Classes as H
 import Data.Higher.Functor.Foldable
 import qualified Data.Higher.Traversable as H
+import Data.Rec
 import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators
@@ -25,6 +27,9 @@ data Grammar t r a
   | forall c b . Seq (      c -> b -> a) (r c) (r b)
   | Lab (r a) String
   | End a
+
+toGraph :: (forall n . Rec n (Grammar t) a) -> Graph a
+toGraph _ = mempty
 
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
