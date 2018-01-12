@@ -14,6 +14,8 @@ data Isogrammar t r a
   | Lab (r a) String
   | End a
 
+
+newtype StringS = StringS { unStringS :: String -> String }
 data (a <-> b) = Iso { from :: a -> b, to :: b -> a }
 
 instance Category (<->) where
