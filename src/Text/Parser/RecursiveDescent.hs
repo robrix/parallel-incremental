@@ -3,6 +3,7 @@ module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
 
+import qualified Control.Monad.State as M
 import Data.Align
 import Data.Bifunctor
 import Data.Delta
@@ -24,29 +25,45 @@ type Error t = ([String], State t)
 
 runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> [t] -> Either [String] a
 runGrammar grammar ts = result (Left . map formatError) Right $ do
-  (a, s') <- runK (iterRec algebra grammar) (State mempty ts)
+  (a, s') <- M.runStateT (iterRec algebra grammar) (State mempty ts)
   if null (stateInput s') then
     Success a
   else
     Failure [(["eof"], s')]
-  where algebra :: (r ~> K t) -> Grammar t r ~> K t
-        algebra go g = K $ \ s -> case g of
-          Err e -> Failure [(e, s)]
-          Nul a -> Success (a, s)
-          Sat p | c:cs' <- stateInput s, Just a <- p c -> Success (a, s { stateInput = cs' })
-                | otherwise                            -> Failure [([], s)]
-          Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runK (go a) s) (runK (go b) s)
+  where algebra :: (r ~> M.StateT (State t) (Result (Error t))) -> Grammar t r ~> M.StateT (State t) (Result (Error t))
+        algebra go g = case g of
+          Err e -> do
+            s <- M.get
+            M.lift $ Failure [(e, s)]
+          Nul a -> pure a
+          Sat p -> do
+            s <- M.get
+            case stateInput s of
+              c:cs' | Just a <- p c -> do
+                M.put (s { stateInput = cs' })
+                pure a
+              _ -> M.lift $ Failure [([], s)]
+          Alt f a b -> do
+            s <- M.get
+            (a, s') <- M.lift (alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (M.runStateT (go a) s) (M.runStateT (go b) s))
+            M.put s'
+            pure a
           Seq f a b -> do
-            (a', s')  <- runK (go a) s
+            a' <-          go a
             let fa = f a'
-            (b', s'') <- fa `seq` runK (go b) s'
+            b' <- fa `seq` go b
             let fab = fa b'
-            fab `seq` Success (fab, s'')
-          Lab a l -> first (\ (_, s) -> ([l], s)) (runK (go a) s)
-          End a | [] <- stateInput s -> Success (a, s)
-                | otherwise          -> Failure [(["eof"], s)]
-
-newtype K t a = K { runK :: State t -> Result (Error t) (a, State t) }
+            pure $! fab
+          Lab a l -> do
+            s <- M.get
+            (a, s') <- M.lift (first (\ (_, s) -> ([l], s)) (M.runStateT (go a) s))
+            M.put s'
+            pure a
+          End a -> do
+            s <- M.get
+            case stateInput s of
+              [] -> pure a
+              _  -> M.lift $ Failure [(["eof"], s)]
 
 formatError :: Show t => Error t -> String
 formatError ([], (State _ [])) = "no rule to match at eof"
