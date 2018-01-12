@@ -1,7 +1,9 @@
-{-# LANGUAGE ExistentialQuantification, TypeOperators #-}
+{-# LANGUAGE ExistentialQuantification, RankNTypes, TypeOperators #-}
 module Data.Isogrammar where
 
 import Control.Category
+import Data.Higher.Function as H
+import Data.Rec
 import Data.Semigroup
 import Data.These
 import Prelude hiding ((.), id)
@@ -15,6 +17,15 @@ data Isogrammar t r a
   | Lab (r a) String
   | End a
 
+
+prettyPrint :: (forall n . Rec n (Isogrammar Char) a) -> Maybe String
+prettyPrint grammar = toS <$> runK (iterRec algebra grammar)
+  where algebra :: (r ~> K) -> Isogrammar Char r ~> K
+        algebra yield g = K $ case g of
+          Err _ -> Nothing
+          _ -> Just mempty
+
+newtype K a = K { runK :: Maybe StringS }
 
 newtype StringS = StringS { unStringS :: String -> String }
 
