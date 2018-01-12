@@ -41,6 +41,7 @@ library
                      , Text.Parser.Valiant
                      , Text.Printer.RecursiveAscent
   build-depends:       base >=4.10 && <4.11
+                     , mtl
                      , parsers
                      , these
   hs-source-dirs:      src

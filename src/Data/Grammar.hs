@@ -1,11 +1,13 @@
 {-# LANGUAGE DataKinds, FlexibleInstances, GADTs, RankNTypes, TypeFamilies, TypeOperators, UndecidableInstances #-}
 module Data.Grammar
 ( Grammar(..)
+, toGraph
 ) where
 
 import Control.Applicative
 import qualified Control.Higher.Applicative as H
 import Control.Monad (guard)
+import Control.Monad.State
 import Data.Graph
 import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
@@ -14,6 +16,7 @@ import Data.Higher.Functor.Classes as H
 import Data.Higher.Functor.Foldable
 import qualified Data.Higher.Traversable as H
 import Data.Rec
+import Data.Semiring
 import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators
@@ -28,8 +31,35 @@ data Grammar t r a
   | Lab (r a) String
   | End a
 
-toGraph :: (forall n . Rec n (Grammar t) a) -> Graph a
-toGraph _ = mempty
+vertex :: a -> State Int (Graph a)
+vertex a = StateT (\ i -> pure (Graph [Vertex i (Just a)] [], succ i))
+
+toGraph :: (forall n . Rec n (Grammar t) a) -> Graph String
+toGraph g = evalState (go Nothing g) 0
+  where go :: Maybe (Graph String) -> Rec (Const (Graph String)) (Grammar t) x -> State Int (Graph String)
+        go parent (Var v) = pure (maybe id (><) parent (getConst v))
+        go parent (Mu g) = do
+          i <- get
+          go parent (g (Const (Graph [Vertex i Nothing] [])))
+        go parent (In r) = case r of
+          Err _     -> maybe id (><) parent <$> vertex "Err"
+          Nul _     -> maybe id (><) parent <$> vertex "Nul"
+          Sat _     -> maybe id (><) parent <$> vertex "Sat"
+          Alt _ a b -> do
+            alt <- vertex "Alt"
+            a' <- go (Just alt) a
+            b' <- go (Just alt) b
+            pure (maybe id (><) parent alt <> a' <> b')
+          Seq _ a b -> do
+            seq <- vertex "Seq"
+            a' <- go (Just seq) a
+            b' <- go (Just seq) b
+            pure (maybe id (><) parent seq <> a' <> b')
+          Lab a s   -> do
+            lab <- vertex ("Lab " ++ show s)
+            a' <- go (Just lab) a
+            pure (maybe id (><) parent lab <> a')
+          End _     -> maybe id (><) parent <$> vertex "End"
 
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
