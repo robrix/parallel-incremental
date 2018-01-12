@@ -2,6 +2,7 @@
 module Data.Isogrammar where
 
 import Control.Category
+import Data.Semigroup
 import Data.These
 import Prelude hiding ((.), id)
 
@@ -19,6 +20,11 @@ newtype StringS = StringS { unStringS :: String -> String }
 
 toS :: StringS -> String
 toS = ($ "") . unStringS
+
+instance Semigroup StringS where
+  StringS a <> StringS b = StringS (b . a)
+
+
 data (a <-> b) = Iso { from :: a -> b, to :: b -> a }
 
 instance Category (<->) where
