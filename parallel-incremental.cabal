@@ -27,6 +27,7 @@ library
                      , Data.Higher.Monoid
                      , Data.Higher.Semigroup
                      , Data.Higher.Traversable
+                     , Data.Isogrammar
                      , Data.Rec
                      , Data.Result
                      , Data.Semiring
