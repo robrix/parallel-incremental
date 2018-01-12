@@ -24,6 +24,10 @@ toS = ($ "") . unStringS
 instance Semigroup StringS where
   StringS a <> StringS b = StringS (b . a)
 
+instance Monoid StringS where
+  mempty = StringS id
+  mappend = (<>)
+
 
 data (a <-> b) = Iso { from :: a -> b, to :: b -> a }
 
