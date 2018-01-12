@@ -1,7 +1,9 @@
 {-# LANGUAGE ExistentialQuantification, RankNTypes, TypeOperators #-}
 module Data.Isogrammar where
 
+import Control.Applicative
 import Control.Category
+import Data.Bifunctor
 import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
@@ -23,7 +25,12 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
   where algebra :: (r ~> K) -> Isogrammar Char r ~> K
         algebra yield g = K $ \ a -> case g of
           Err _ -> Nothing
-          _ -> Just mempty
+          Nul _ -> Just mempty
+          Sat p -> Just (char (to p (Just a)))
+          Alt f c b -> these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b') (to f a)
+          Seq f c b -> uncurry (<|>) (bimap (runK (yield c)) (runK (yield b)) (to f a))
+          Lab r _ -> runK (yield r) a
+          End _ -> Just mempty
 
 newtype K a = K { runK :: a -> Maybe StringS }
 
