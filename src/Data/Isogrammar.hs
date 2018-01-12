@@ -29,6 +29,9 @@ newtype K a = K { runK :: a -> Maybe StringS }
 
 newtype StringS = StringS { unStringS :: String -> String }
 
+char :: Char -> StringS
+char c = StringS (c:)
+
 toS :: StringS -> String
 toS = ($ "") . unStringS
 
