@@ -4,6 +4,7 @@ module Data.Rec
 , iterRec
 , foldRec
 , cata
+, Mu1(..)
 ) where
 
 import Data.Higher.Foldable as H
