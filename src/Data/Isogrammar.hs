@@ -239,8 +239,8 @@ data State t
 
 type Error t = ([String], State t)
 
-runIsogrammar :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
-runIsogrammar grammar ts = result (Left . map formatError) Right $ do
+parse :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
+parse grammar ts = result (Left . map formatError) Right $ do
   (a, s') <- M.runStateT (iterRec algebra grammar) (State mempty ts)
   if null (stateInput s') then
     Success a
