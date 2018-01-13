@@ -101,6 +101,9 @@ token p = p <. (someSpace <!> isopure ())
 char :: Char -> Rec n (Isogrammar Char) ()
 char c = In (Sat (Iso (\ c' -> guard (c == c') *> pure ()) (const (Just c))))
 
+symbolic :: Char -> Rec n (Isogrammar Char) ()
+symbolic = token . char
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
