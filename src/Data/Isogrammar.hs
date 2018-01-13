@@ -105,6 +105,10 @@ alphaNum :: Rec n (Isogrammar Char) Char
 alphaNum = satisfy isAlphaNum <?> "letter or digit"
 
 
+token :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
+token p = p <. (someSpace <!> isopure ())
+
+
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
   [] -> Just ()
