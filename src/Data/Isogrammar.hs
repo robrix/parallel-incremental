@@ -109,6 +109,11 @@ instance Category (<->) where
 data Lam = Abs String Lam | App Lam Lam | V String
   deriving (Eq, Show)
 
+mkAbs :: (String, Lam) <-> Lam
+mkAbs = Iso (Just . uncurry Abs) (\ a -> case a of
+  Abs n b -> Just (n, b)
+  _       -> Nothing)
+
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
   infixr 4 <#>
