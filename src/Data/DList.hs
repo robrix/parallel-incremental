@@ -16,3 +16,6 @@ instance Semigroup (DList a) where
 instance Monoid (DList a) where
   mempty = DList id
   mappend = (<>)
+
+instance Foldable DList where
+  foldMap f (DList d) = foldMap f (d [])
