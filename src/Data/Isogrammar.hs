@@ -178,3 +178,12 @@ instance Isoapplicative (Rec n (Isogrammar Char)) where
   isopure = In . Nul
 
   a <.> b = In (Seq a b)
+
+instance Isoalternative (Rec n (Isogrammar Char)) where
+  isoempty = In (Err [])
+
+  a <!> b = In (Alt a b)
+
+  isomany a = mu1 (\ more -> (Iso (these Just Just (const . Just)) (\ a -> Just $ case a of
+    [] -> That []
+    _  -> This a)) <#> (cons <#> a <.> more <!> isopure []))
