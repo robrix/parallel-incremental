@@ -2,6 +2,7 @@
 module Data.Result where
 
 import Control.Applicative
+import Control.Monad
 import Data.Align
 import Data.Bifunctor
 import Data.These
@@ -46,3 +47,7 @@ instance Monad (Result e) where
   return = pure
   Success a >>= f = f a
   Failure e >>= _ = Failure e
+
+instance MonadPlus (Result e) where
+  mzero = empty
+  mplus = (<|>)
