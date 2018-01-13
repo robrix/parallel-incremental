@@ -91,6 +91,11 @@ foldl i = inverse unit . (id *** inverse nil) . iterate (step i)
 satisfy :: (Char -> Bool) -> Rec n (Isogrammar Char) Char
 satisfy p = In (Sat (Iso (\ c -> guard (p c) *> pure c) Just))
 
+(<?>) :: Rec n (Isogrammar Char) a -> String -> Rec n (Isogrammar Char) a
+g <?> s = In (Lab g s)
+
+infixl 0 <?>
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
