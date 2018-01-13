@@ -57,6 +57,11 @@ data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
 inverse :: (a <-> b) -> (b <-> a)
 inverse (Iso f g) = Iso g f
 
+associate :: ((a, (b, c)) <-> ((a, b), c))
+associate = Iso f g
+  where f (a, (b, c)) = Just ((a, b), c)
+        g ((a, b), c) = Just (a, (b, c))
+
 
 instance Category (<->) where
   id = Iso Just Just
