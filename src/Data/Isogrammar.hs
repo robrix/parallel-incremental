@@ -35,21 +35,21 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           Lab r _ -> runK (yield r) a
           End -> Just mempty
 
-newtype K a = K { runK :: a -> Maybe StringS }
+newtype K a = K { runK :: a -> Maybe (DList Char) }
 
-newtype StringS = StringS { unStringS :: String -> String }
+newtype DList a = DList { unDList :: [a] -> [a] }
 
-char :: Char -> StringS
-char c = StringS (c:)
+char :: Char -> DList Char
+char c = DList (c:)
 
-toS :: StringS -> String
-toS = ($ "") . unStringS
+toS :: DList Char -> String
+toS = ($ "") . unDList
 
-instance Semigroup StringS where
-  StringS a <> StringS b = StringS (a . b)
+instance Semigroup (DList a) where
+  DList a <> DList b = DList (a . b)
 
-instance Monoid StringS where
-  mempty = StringS id
+instance Monoid (DList a) where
+  mempty = DList id
   mappend = (<>)
 
 
