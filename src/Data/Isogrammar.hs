@@ -61,6 +61,8 @@ unit = Iso (\ a -> pure (a, ())) (pure . fst)
 (***) :: (a <-> b) -> (c <-> d) -> ((a, c) <-> (b, d))
 i *** j = Iso (\ (a, b) -> (,) <$> apply i a <*> apply j b) (\ (c, d) -> (,) <$> unapply i c <*> unapply j d)
 
+infixr 3 ***
+
 driver :: (a -> Maybe a) -> a -> a
 driver step state = case step state of
   Just state' -> driver step state'
