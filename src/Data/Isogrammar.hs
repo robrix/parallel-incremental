@@ -9,7 +9,7 @@ import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
 import Data.These
-import Prelude hiding ((.), id)
+import Prelude hiding ((.), foldl, id, iterate)
 
 data Isogrammar t r a where
   Err :: [String] -> Isogrammar t r a
@@ -148,3 +148,6 @@ skipMany p = ((), []) <# isomany p
 
 skipSome :: Isoalternative f => f () -> f ()
 skipSome p = p .> skipMany p
+
+chainl1 :: Isoalternative f => f a -> f b -> ((a,(b,a)) <-> a) -> f a
+chainl1 arg op f = foldl f <#> arg <.> isomany (op <.> arg)
