@@ -169,3 +169,7 @@ skipSome p = p .> skipMany p
 
 chainl1 :: Isoalternative f => f a -> f b -> ((a,(b,a)) <-> a) -> f a
 chainl1 arg op f = foldl f <#> arg <.> isomany (op <.> arg)
+
+
+instance Isofunctor (Rec n (Isogrammar Char)) where
+  f <#> a = In (Map f a)
