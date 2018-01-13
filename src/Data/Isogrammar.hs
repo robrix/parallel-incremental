@@ -27,19 +27,19 @@ data Isogrammar t r a where
 
 
 prettyPrint :: (forall n . Rec n (Isogrammar t) a) -> a -> Maybe [t]
-prettyPrint grammar a = toList <$> runK (iterRec algebra grammar) a
-  where algebra :: (r ~> K t) -> Isogrammar t r ~> K t
-        algebra yield g = K $ \ a -> case g of
+prettyPrint grammar a = toList <$> runPrinter (iterRec algebra grammar) a
+  where algebra :: (r ~> Printer t) -> Isogrammar t r ~> Printer t
+        algebra yield g = Printer $ \ a -> case g of
           Err _ -> Nothing
           Nul _ -> Just mempty
           Sat p -> pure <$> unapply p a
-          Map f b -> unapply f a >>= runK (yield b)
-          Alt c b -> runK (yield c) a <|> runK (yield b) a
-          Seq c b -> uncurry (liftA2 (<>)) (bimap (runK (yield c)) (runK (yield b)) a)
-          Lab r _ -> runK (yield r) a
+          Map f b -> unapply f a >>= runPrinter (yield b)
+          Alt c b -> runPrinter (yield c) a <|> runPrinter (yield b) a
+          Seq c b -> uncurry (liftA2 (<>)) (bimap (runPrinter (yield c)) (runPrinter (yield b)) a)
+          Lab r _ -> runPrinter (yield r) a
           End -> Just mempty
 
-newtype K t a = K { runK :: a -> Maybe (DList t) }
+newtype Printer t a = Printer { runPrinter :: a -> Maybe (DList t) }
 
 
 data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
