@@ -16,6 +16,7 @@ library
                      , Control.Higher.Comonad.Cofree
                      , Control.Higher.Monad.Free
                      , Data.Delta
+                     , Data.DList
                      , Data.Fix
                      , Data.Grammar
                      , Data.Graph
