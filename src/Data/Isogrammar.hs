@@ -8,7 +8,6 @@ import Data.Bifunctor
 import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
-import Data.These
 import Prelude hiding ((.), foldl, id, iterate)
 
 data Isogrammar t r a where
@@ -16,8 +15,8 @@ data Isogrammar t r a where
   Nul :: a -> Isogrammar t r a
   Sat :: (t <-> a) -> Isogrammar t r a
   Map :: (b <-> a) -> r b -> Isogrammar t r a
-  Alt :: r a -> r b -> Isogrammar t r (These a  b)
-  Seq :: r a -> r b -> Isogrammar t r (      a, b)
+  Alt :: r a -> r a -> Isogrammar t r a
+  Seq :: r a -> r b -> Isogrammar t r (a, b)
   Lab :: r a -> String -> Isogrammar t r a
   End :: Isogrammar t r ()
 
@@ -30,7 +29,7 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           Nul _ -> Just mempty
           Sat p -> char <$> unapply p a
           Map f b -> unapply f a >>= runK (yield b)
-          Alt c b -> these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b') a
+          Alt c b -> runK (yield c) a <|> runK (yield b) a
           Seq c b -> uncurry (liftA2 (<>)) (bimap (runK (yield c)) (runK (yield b)) a)
           Lab r _ -> runK (yield r) a
           End -> Just mempty
@@ -156,7 +155,7 @@ between p q r = p .> r <. q
 class Isoapplicative f => Isoalternative f where
   isoempty :: f a
 
-  (<!>) :: f a -> f b -> f (These a b)
+  (<!>) :: f a -> f a -> f a
   infixr 3 <!>
 
   isomany :: f a -> f [a]
@@ -184,6 +183,4 @@ instance Isoalternative (Rec n (Isogrammar Char)) where
 
   a <!> b = In (Alt a b)
 
-  isomany a = mu1 (\ more -> (Iso (these Just Just (const . Just)) (\ a -> Just $ case a of
-    [] -> That []
-    _  -> This a)) <#> (cons <#> a <.> more <!> isopure []))
+  isomany a = mu1 (\ more -> cons <#> a <.> more <!> isopure [])
