@@ -108,6 +108,9 @@ symbolic = token . char
 dot :: Rec n (Isogrammar Char) ()
 dot = symbolic '.'
 
+parens :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
+parens g = between (symbolic '(') (symbolic ')') g
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
