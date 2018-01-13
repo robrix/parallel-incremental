@@ -66,6 +66,17 @@ commute :: (a, b) <-> (b, a)
 commute = Iso f f where f (a, b) = Just (b, a)
 
 
+nil :: () <-> [a]
+nil = Iso (const (Just [])) (\ l -> case l of
+  [] -> Just ()
+  _  -> Nothing)
+
+cons :: (a, [a]) <-> [a]
+cons = Iso (Just . uncurry (:)) (\ l -> case l of
+  a:as -> Just (a, as)
+  _    -> Nothing)
+
+
 instance Category (<->) where
   id = Iso Just Just
 
