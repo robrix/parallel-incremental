@@ -147,6 +147,22 @@ mkVar = Iso (Just . V) (\ a -> case a of
   V s -> Just s
   _   -> Nothing)
 
+
+lam :: Rec n (Isogrammar Char) Lam
+lam = mu1 (\ lam -> abs' lam <!> app lam)
+
+var :: Rec n (Isogrammar Char) Lam
+var = mkVar <#> name <?> "variable"
+
+name :: Rec n (Isogrammar Char) String
+name = token (cons <#> letter <.> isomany alphaNum)
+
+abs' :: Rec n (Isogrammar Char) Lam -> Rec n (Isogrammar Char) Lam
+abs' lam = symbolic '\\' .> mkAbs <#> name <.> dot .> lam <?> "abstraction"
+
+app :: Rec n (Isogrammar Char) Lam -> Rec n (Isogrammar Char) Lam
+app lam = chainl1 (var <!> parens lam) (isopure ()) (mkApp . (id *** (inverse unit . commute))) <?> "application"
+
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
   infixr 4 <#>
