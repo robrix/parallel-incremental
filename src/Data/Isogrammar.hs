@@ -5,6 +5,7 @@ import Control.Applicative
 import Control.Category
 import Control.Monad
 import Data.Bifunctor
+import Data.Char
 import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
@@ -95,6 +96,10 @@ satisfy p = In (Sat (Iso (\ c -> guard (p c) *> pure c) Just))
 g <?> s = In (Lab g s)
 
 infixl 0 <?>
+
+
+someSpace :: Rec n (Isogrammar Char) ()
+someSpace = skipSome (((), ' ') <# satisfy isSpace)
 
 
 nil :: () <-> [a]
