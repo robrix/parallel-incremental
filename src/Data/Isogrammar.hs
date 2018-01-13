@@ -126,3 +126,6 @@ class Isoapplicative f => Isoalternative f where
   infixr 3 <!>
 
   isomany :: f a -> f [a]
+
+skipMany :: Isoalternative f => f a -> f ()
+skipMany p = ((), []) <# isomany p
