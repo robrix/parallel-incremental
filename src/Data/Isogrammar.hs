@@ -29,9 +29,9 @@ data Isogrammar t r a where
   End :: Isogrammar t r ()
 
 
-prettyPrint :: (forall n . Rec n (Isogrammar Char) a) -> a -> Maybe String
+prettyPrint :: (forall n . Rec n (Isogrammar t) a) -> a -> Maybe [t]
 prettyPrint grammar a = toList <$> runK (iterRec algebra grammar) a
-  where algebra :: (r ~> K) -> Isogrammar Char r ~> K
+  where algebra :: (r ~> K t) -> Isogrammar t r ~> K t
         algebra yield g = K $ \ a -> case g of
           Err _ -> Nothing
           Nul _ -> Just mempty
@@ -42,7 +42,7 @@ prettyPrint grammar a = toList <$> runK (iterRec algebra grammar) a
           Lab r _ -> runK (yield r) a
           End -> Just mempty
 
-newtype K a = K { runK :: a -> Maybe (DList Char) }
+newtype K t a = K { runK :: a -> Maybe (DList t) }
 
 
 data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
