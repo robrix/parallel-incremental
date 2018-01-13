@@ -92,3 +92,19 @@ class Isofunctor f where
   (a, b) <# r = Iso (const (Just a)) (const (Just b)) <#> r
 
   infixr 4 <#
+
+class Isofunctor f => Isoapplicative f where
+  isopure :: a -> f a
+
+  (<.>) :: f a -> f b -> f (a, b)
+  infixr 4 <.>
+
+  (<.) :: f a -> f () -> f a
+  p <. q = inverse unit <#> p <.> q
+
+  infixr 4 <.
+
+  (.>) :: f () -> f a -> f a
+  p .> q = inverse unit . commute <#> p <.> q
+
+  infixr 4 .>
