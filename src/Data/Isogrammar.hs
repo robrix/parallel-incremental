@@ -108,3 +108,11 @@ class Isofunctor f => Isoapplicative f where
   p .> q = inverse unit . commute <#> p <.> q
 
   infixr 4 .>
+
+class Isoapplicative f => Isoalternative f where
+  isoempty :: f a
+
+  (<!>) :: f a -> f b -> f (These a b)
+  infixr 3 <!>
+
+  isomany :: f a -> f [a]
