@@ -47,14 +47,14 @@ inverse (Iso f g) = Iso g f
 
 associate :: ((a, (b, c)) <-> ((a, b), c))
 associate = Iso f g
-  where f (a, (b, c)) = Just ((a, b), c)
-        g ((a, b), c) = Just (a, (b, c))
+  where f (a, (b, c)) = pure ((a, b), c)
+        g ((a, b), c) = pure (a, (b, c))
 
 commute :: (a, b) <-> (b, a)
-commute = Iso f f where f (a, b) = Just (b, a)
+commute = Iso f f where f (a, b) = pure (b, a)
 
 unit :: a <-> (a, ())
-unit = Iso (\ a -> Just (a, ())) (Just . fst)
+unit = Iso (\ a -> pure (a, ())) (pure . fst)
 
 (***) :: (a <-> b) -> (c <-> d) -> ((a, c) <-> (b, d))
 i *** j = Iso (\ (a, b) -> (,) <$> apply i a <*> apply j b) (\ (c, d) -> (,) <$> unapply i c <*> unapply j d)
@@ -66,8 +66,8 @@ driver step state = case step state of
 
 iterate :: (a <-> a) -> (a <-> a)
 iterate step = Iso f g
-  where f = Just . driver (apply   step)
-        g = Just . driver (unapply step)
+  where f = pure . driver (apply   step)
+        g = pure . driver (unapply step)
 
 step :: ((a, b) <-> a) -> ((a, [b]) <-> (a, [b]))
 step i = (i *** id) . associate . (id *** inverse cons)
@@ -77,7 +77,7 @@ foldl i = inverse unit . (id *** inverse nil) . iterate (step i)
 
 
 satisfy :: (Char -> Bool) -> Rec n (Isogrammar Char) Char
-satisfy p = In (Sat (Iso (\ c -> guard (p c) *> pure c) Just))
+satisfy p = In (Sat (Iso (\ c -> guard (p c) *> pure c) pure))
 
 (<?>) :: Rec n (Isogrammar Char) a -> String -> Rec n (Isogrammar Char) a
 g <?> s = In (Lab g s)
@@ -99,7 +99,7 @@ token :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
 token p = p <. (someSpace <!> isopure ())
 
 char :: Char -> Rec n (Isogrammar Char) ()
-char c = In (Sat (Iso (\ c' -> guard (c == c') *> pure ()) (const (Just c))))
+char c = In (Sat (Iso (\ c' -> guard (c == c') *> pure ()) (const (pure c))))
 
 symbolic :: Char -> Rec n (Isogrammar Char) ()
 symbolic = token . char
@@ -113,18 +113,18 @@ parens g = between (symbolic '(') (symbolic ')') g
 
 
 nil :: () <-> [a]
-nil = Iso (const (Just [])) (\ l -> case l of
-  [] -> Just ()
-  _  -> Nothing)
+nil = Iso (const (pure [])) (\ l -> case l of
+  [] -> pure ()
+  _  -> empty)
 
 cons :: (a, [a]) <-> [a]
-cons = Iso (Just . uncurry (:)) (\ l -> case l of
-  a:as -> Just (a, as)
-  _    -> Nothing)
+cons = Iso (pure . uncurry (:)) (\ l -> case l of
+  a:as -> pure (a, as)
+  _    -> empty)
 
 
 instance Category (<->) where
-  id = Iso Just Just
+  id = Iso pure pure
 
   Iso f1 t1 . Iso f2 t2 = Iso (f1 <=< f2) (t2 <=< t1)
 
@@ -133,19 +133,19 @@ data Lam = Abs String Lam | App Lam Lam | V String
   deriving (Eq, Show)
 
 mkAbs :: (String, Lam) <-> Lam
-mkAbs = Iso (Just . uncurry Abs) (\ a -> case a of
-  Abs n b -> Just (n, b)
-  _       -> Nothing)
+mkAbs = Iso (pure . uncurry Abs) (\ a -> case a of
+  Abs n b -> pure (n, b)
+  _       -> empty)
 
 mkApp :: (Lam, Lam) <-> Lam
-mkApp = Iso (Just . uncurry App) (\ a -> case a of
-  App a b -> Just (a, b)
-  _       -> Nothing)
+mkApp = Iso (pure . uncurry App) (\ a -> case a of
+  App a b -> pure (a, b)
+  _       -> empty)
 
 mkVar :: String <-> Lam
-mkVar = Iso (Just . V) (\ a -> case a of
-  V s -> Just s
-  _   -> Nothing)
+mkVar = Iso (pure . V) (\ a -> case a of
+  V s -> pure s
+  _   -> empty)
 
 
 lam :: Rec n (Isogrammar Char) Lam
@@ -168,7 +168,7 @@ class Isofunctor f where
   infixr 4 <#>
 
   (<#) :: (a, b) -> f b -> f a
-  (a, b) <# r = Iso (const (Just a)) (const (Just b)) <#> r
+  (a, b) <# r = Iso (const (pure a)) (const (pure b)) <#> r
 
   infixr 4 <#
 
