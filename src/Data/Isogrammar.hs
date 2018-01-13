@@ -90,9 +90,6 @@ g <?> s = In (Lab g s)
 infixl 0 <?>
 
 
-someSpace :: Rec n (Isogrammar Char) ()
-someSpace = skipSome (((), ' ') <# satisfy isSpace)
-
 alphaNum :: Rec n (Isogrammar Char) Char
 alphaNum = satisfy isAlphaNum <?> "letter or digit"
 
@@ -101,7 +98,7 @@ letter = satisfy isAlpha <?> "letter"
 
 
 token :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
-token p = p <. (someSpace <!> isopure ())
+token p = p <. skipMany (satisfy isSpace)
 
 char :: Char -> Rec n (Isogrammar Char) ()
 char c = In (Sat (Iso (\ c' -> guard (c == c') *> pure ()) (const (pure c))))
@@ -207,9 +204,6 @@ class Isoapplicative f => Isoalternative f where
 
 skipMany :: Isoalternative f => f a -> f ()
 skipMany p = ((), []) <# isomany p
-
-skipSome :: Isoalternative f => f () -> f ()
-skipSome p = p .> skipMany p
 
 chainl1 :: Isoalternative f => f a -> f b -> ((a,(b,a)) <-> a) -> f a
 chainl1 arg op f = foldl f <#> arg <.> isomany (op <.> arg)
