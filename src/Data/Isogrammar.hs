@@ -1,4 +1,4 @@
-{-# LANGUAGE ExistentialQuantification, RankNTypes, TypeOperators #-}
+{-# LANGUAGE GADTs, RankNTypes, TypeOperators #-}
 module Data.Isogrammar where
 
 import Control.Applicative
@@ -10,14 +10,14 @@ import Data.Semigroup
 import Data.These
 import Prelude hiding ((.), id)
 
-data Isogrammar t r a
-  = Err [String]
-  | Nul a
-  | Sat (t <-> a)
-  | forall c b . Alt (These  c  b  <-> a) (r c) (r b)
-  | forall c b . Seq (      (c, b) <-> a) (r c) (r b)
-  | Lab (r a) String
-  | End a
+data Isogrammar t r a where
+  Err :: [String] -> Isogrammar t r a
+  Nul :: a -> Isogrammar t r a
+  Sat :: (t <-> a) -> Isogrammar t r a
+  Alt :: (These  c  b  <-> a) -> r c -> r b -> Isogrammar t r a
+  Seq :: (      (c, b) <-> a) -> r c -> r b -> Isogrammar t r a
+  Lab :: r a -> String -> Isogrammar t r a
+  End :: Isogrammar t r ()
 
 
 prettyPrint :: (forall n . Rec n (Isogrammar Char) a) -> a -> Maybe String
@@ -30,7 +30,7 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           Alt f c b -> unapply f a >>= these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b')
           Seq f c b -> unapply f a >>= uncurry (<|>) . bimap (runK (yield c)) (runK (yield b))
           Lab r _ -> runK (yield r) a
-          End _ -> Just mempty
+          End -> Just mempty
 
 newtype K a = K { runK :: a -> Maybe StringS }
 
