@@ -104,6 +104,9 @@ someSpace = skipSome (((), ' ') <# satisfy isSpace)
 alphaNum :: Rec n (Isogrammar Char) Char
 alphaNum = satisfy isAlphaNum <?> "letter or digit"
 
+letter :: Rec n (Isogrammar Char) Char
+letter = satisfy isAlpha <?> "letter"
+
 
 token :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
 token p = p <. (someSpace <!> isopure ())
