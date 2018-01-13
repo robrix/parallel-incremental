@@ -54,6 +54,10 @@ instance Monoid StringS where
 
 data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
 
+inverse :: (a <-> b) -> (b <-> a)
+inverse (Iso f g) = Iso g f
+
+
 instance Category (<->) where
   id = Iso Just Just
 
