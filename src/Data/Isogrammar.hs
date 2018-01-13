@@ -105,6 +105,10 @@ symbolic :: Char -> Rec n (Isogrammar Char) ()
 symbolic = token . char
 
 
+dot :: Rec n (Isogrammar Char) ()
+dot = symbolic '.'
+
+
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
   [] -> Just ()
