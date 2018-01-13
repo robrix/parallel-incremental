@@ -69,6 +69,9 @@ commute = Iso f f where f (a, b) = Just (b, a)
 unit :: a <-> (a, ())
 unit = Iso (\ a -> Just (a, ())) (Just . fst)
 
+(***) :: (a <-> b) -> (c <-> d) -> ((a, c) <-> (b, d))
+i *** j = Iso (\ (a, b) -> (,) <$> apply i a <*> apply j b) (\ (c, d) -> (,) <$> unapply i c <*> unapply j d)
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
