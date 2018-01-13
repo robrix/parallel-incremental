@@ -22,3 +22,8 @@ instance Foldable DList where
 
 instance Functor DList where
   fmap f (DList d) = DList (map f (d []) ++)
+
+instance Applicative DList where
+  pure a = DList (a:)
+
+  DList f <*> DList a = DList ((f [] <*> a []) ++)
