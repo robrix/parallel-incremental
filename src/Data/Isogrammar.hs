@@ -115,6 +115,10 @@ class Isofunctor f => Isoapplicative f where
 
   infixr 4 .>
 
+between :: Isoapplicative f => f () -> f () -> f a -> f a
+between p q r = p .> r <. q
+
+
 class Isoapplicative f => Isoalternative f where
   isoempty :: f a
 
