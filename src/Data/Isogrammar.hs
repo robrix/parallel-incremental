@@ -162,7 +162,7 @@ abs' :: Rec n (Isogrammar Char) Lam -> Rec n (Isogrammar Char) Lam
 abs' lam = symbolic '\\' .> mkAbs <#> name <.> dot .> lam <?> "abstraction"
 
 app :: Rec n (Isogrammar Char) Lam -> Rec n (Isogrammar Char) Lam
-app lam = chainl1 (var <!> parens lam) (isopure ()) (mkApp . (id *** (inverse unit . commute))) <?> "application"
+app lam = chainl1 (var <!> parens lam) (isopure ()) (mkApp . (id *** inverse unit . commute)) <?> "application"
 
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
