@@ -106,6 +106,9 @@ instance Category (<->) where
   Iso f1 t1 . Iso f2 t2 = Iso (f1 <=< f2) (t2 <=< t1)
 
 
+data Lam = Abs String Lam | App Lam Lam | V String
+  deriving (Eq, Show)
+
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
   infixr 4 <#>
