@@ -173,3 +173,8 @@ chainl1 arg op f = foldl f <#> arg <.> isomany (op <.> arg)
 
 instance Isofunctor (Rec n (Isogrammar Char)) where
   f <#> a = In (Map f a)
+
+instance Isoapplicative (Rec n (Isogrammar Char)) where
+  isopure = In . Nul
+
+  a <.> b = In (Seq a b)
