@@ -30,7 +30,7 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           Sat p -> char <$> unapply p a
           Map f b -> unapply f a >>= runK (yield b)
           Alt c b -> these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b') a
-          Seq c b -> uncurry (<|>) (bimap (runK (yield c)) (runK (yield b)) a)
+          Seq c b -> uncurry (liftA2 (<>)) (bimap (runK (yield c)) (runK (yield b)) a)
           Lab r _ -> runK (yield r) a
           End -> Just mempty
 
