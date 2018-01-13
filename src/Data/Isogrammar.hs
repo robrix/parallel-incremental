@@ -72,6 +72,22 @@ unit = Iso (\ a -> Just (a, ())) (Just . fst)
 (***) :: (a <-> b) -> (c <-> d) -> ((a, c) <-> (b, d))
 i *** j = Iso (\ (a, b) -> (,) <$> apply i a <*> apply j b) (\ (c, d) -> (,) <$> unapply i c <*> unapply j d)
 
+driver :: (a -> Maybe a) -> a -> a
+driver step state = case step state of
+  Just state' -> driver step state'
+  Nothing     -> state
+
+iterate :: (a <-> a) -> (a <-> a)
+iterate step = Iso f g
+  where f = Just . driver (apply   step)
+        g = Just . driver (unapply step)
+
+step :: ((a, b) <-> a) -> ((a, [b]) <-> (a, [b]))
+step i = (i *** id) . associate . (id *** inverse cons)
+
+foldl :: ((a, b) <-> a) -> ((a, [b]) <-> a)
+foldl i = inverse unit . (id *** inverse nil) . iterate (step i)
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
