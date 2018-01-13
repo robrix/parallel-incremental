@@ -98,6 +98,9 @@ letter = satisfy isAlpha <?> "letter"
 token :: Rec n (Isogrammar Char) a -> Rec n (Isogrammar Char) a
 token p = p <. (someSpace <!> isopure ())
 
+char :: Char -> Rec n (Isogrammar Char) ()
+char c = In (Sat (Iso (\ c' -> guard (c == c') *> pure ()) (const (Just c))))
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
