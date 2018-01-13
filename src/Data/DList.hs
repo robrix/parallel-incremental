@@ -18,9 +18,9 @@ instance Foldable DList where
   foldMap f (DList d) = foldMap f (d [])
 
 instance Functor DList where
-  fmap f (DList d) = DList (map f (d []) ++)
+  fmap f (DList d) = fromList (map f (d []))
 
 instance Applicative DList where
   pure a = DList (a:)
 
-  DList f <*> DList a = DList ((f [] <*> a []) ++)
+  DList f <*> DList a = fromList (f [] <*> a [])
