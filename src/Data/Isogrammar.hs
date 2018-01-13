@@ -4,7 +4,6 @@ module Data.Isogrammar where
 import Control.Applicative
 import Control.Category
 import Control.Monad
-import qualified Control.Monad.State as M
 import Data.Bifunctor
 import Data.Char
 import Data.DList
@@ -227,41 +226,33 @@ type Error t = ([String], [t])
 
 parse :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
 parse grammar ts = result (Left . map formatError) Right $ do
-  (a, s') <- M.runStateT (iterRec algebra grammar) ts
+  (a, s') <- runParser (iterRec algebra grammar) ts
   if null s' then
     Success a
   else
     Failure [(["eof"], s')]
-  where algebra :: (r ~> M.StateT [t] (Result (Error t))) -> Isogrammar t r ~> M.StateT [t] (Result (Error t))
-        algebra go g = case g of
-          Err e -> do
-            s <- M.get
-            M.lift $ Failure [(e, s)]
-          Nul a -> pure a
-          Sat p -> do
-            s <- M.get
-            case s of
-              c:cs' | Just a <- apply p c -> do
-                M.put cs'
-                pure a
-              _ -> M.lift $ Failure [([], s)]
-          Map f a -> apply f <$> go a >>= maybe empty pure
-          Alt a b -> do
-            s <- M.get
-            (a, s') <- M.lift (M.runStateT (go a) s <|> M.runStateT (go b) s)
-            M.put s'
-            pure a
-          Seq a b -> (,) <$> go a <*> go b
-          Lab a l -> do
-            s <- M.get
-            (a, s') <- M.lift (first (\ (_, s) -> ([l], s)) (M.runStateT (go a) s))
-            M.put s'
-            pure a
-          End -> do
-            s <- M.get
-            case s of
-              [] -> pure ()
-              _  -> M.lift $ Failure [(["eof"], s)]
+  where algebra :: (r ~> Parser t) -> Isogrammar t r ~> Parser t
+        algebra yield g = Parser $ \ s -> case g of
+          Err e -> Failure [(e, s)]
+          Nul a -> pure (a, s)
+          Sat p | c:cs <- s, Just a <- apply p c -> pure (a, cs)
+                | otherwise                      -> Failure [([], s)]
+          Map f a -> do
+            (a', s') <- runParser (yield a) s
+            maybe empty (pure . flip (,) s') (apply f a')
+          Alt a b -> runParser (yield a) s <|> runParser (yield b) s
+          Seq a b -> do
+            (a', s')  <- runParser (yield a) s
+            (b', s'') <- runParser (yield b) s'
+            pure ((a', b'), s'')
+          Lab a l -> first (\ (_, s) -> ([l], s)) (runParser (yield a) s)
+          End | null s    -> pure ((), s)
+              | otherwise -> Failure [(["eof"], s)]
+
+newtype Parser t a = Parser { runParser :: [t] -> Result (Error t) (a, [t]) }
+
+instance Functor (Parser t) where
+  fmap f (Parser run) = Parser (\ ts -> first f <$> run ts)
 
 formatError :: Show t => Error t -> String
 formatError ([], []) = "no rule to match at eof"
