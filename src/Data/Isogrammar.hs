@@ -7,6 +7,7 @@ import Control.Monad
 import Data.Bifunctor
 import Data.Char
 import Data.DList
+import Data.Foldable (toList)
 import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
@@ -24,12 +25,12 @@ data Isogrammar t r a where
 
 
 prettyPrint :: (forall n . Rec n (Isogrammar Char) a) -> a -> Maybe String
-prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
+prettyPrint grammar a = toList <$> runK (iterRec algebra grammar) a
   where algebra :: (r ~> K) -> Isogrammar Char r ~> K
         algebra yield g = K $ \ a -> case g of
           Err _ -> Nothing
           Nul _ -> Just mempty
-          Sat p -> char <$> unapply p a
+          Sat p -> pure <$> unapply p a
           Map f b -> unapply f a >>= runK (yield b)
           Alt c b -> runK (yield c) a <|> runK (yield b) a
           Seq c b -> uncurry (liftA2 (<>)) (bimap (runK (yield c)) (runK (yield b)) a)
