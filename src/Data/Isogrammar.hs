@@ -62,6 +62,9 @@ associate = Iso f g
   where f (a, (b, c)) = Just ((a, b), c)
         g ((a, b), c) = Just (a, (b, c))
 
+commute :: (a, b) <-> (b, a)
+commute = Iso f f where f (a, b) = Just (b, a)
+
 
 instance Category (<->) where
   id = Iso Just Just
