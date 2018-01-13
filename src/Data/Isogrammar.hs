@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, RankNTypes, TypeOperators #-}
+{-# LANGUAGE FlexibleInstances, GADTs, RankNTypes, TypeOperators #-}
 module Data.Isogrammar where
 
 import Control.Applicative
