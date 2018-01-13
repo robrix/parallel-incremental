@@ -119,6 +119,11 @@ mkApp = Iso (Just . uncurry App) (\ a -> case a of
   App a b -> Just (a, b)
   _       -> Nothing)
 
+mkVar :: String <-> Lam
+mkVar = Iso (Just . V) (\ a -> case a of
+  V s -> Just s
+  _   -> Nothing)
+
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
   infixr 4 <#>
