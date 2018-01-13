@@ -6,6 +6,7 @@ import Control.Category
 import Control.Monad
 import Data.Bifunctor
 import Data.Char
+import Data.DList
 import Data.Higher.Function as H
 import Data.Rec
 import Data.Semigroup
@@ -36,21 +37,6 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           End -> Just mempty
 
 newtype K a = K { runK :: a -> Maybe (DList Char) }
-
-newtype DList a = DList { unDList :: [a] -> [a] }
-
-char :: Char -> DList Char
-char c = DList (c:)
-
-toS :: DList Char -> String
-toS = ($ "") . unDList
-
-instance Semigroup (DList a) where
-  DList a <> DList b = DList (a . b)
-
-instance Monoid (DList a) where
-  mempty = DList id
-  mappend = (<>)
 
 
 data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
