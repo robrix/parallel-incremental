@@ -45,7 +45,7 @@ toS :: StringS -> String
 toS = ($ "") . unStringS
 
 instance Semigroup StringS where
-  StringS a <> StringS b = StringS (b . a)
+  StringS a <> StringS b = StringS (a . b)
 
 instance Monoid StringS where
   mempty = StringS id
