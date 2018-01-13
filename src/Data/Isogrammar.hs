@@ -223,9 +223,7 @@ instance Isoalternative (Rec n (Isogrammar Char)) where
   isomany a = mu1 (\ more -> cons <#> a <.> more <!> isopure [])
 
 
-type State t = [t]
-
-type Error t = ([String], State t)
+type Error t = ([String], [t])
 
 parse :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
 parse grammar ts = result (Left . map formatError) Right $ do
@@ -234,7 +232,7 @@ parse grammar ts = result (Left . map formatError) Right $ do
     Success a
   else
     Failure [(["eof"], s')]
-  where algebra :: (r ~> M.StateT (State t) (Result (Error t))) -> Isogrammar t r ~> M.StateT (State t) (Result (Error t))
+  where algebra :: (r ~> M.StateT [t] (Result (Error t))) -> Isogrammar t r ~> M.StateT [t] (Result (Error t))
         algebra go g = case g of
           Err e -> do
             s <- M.get
