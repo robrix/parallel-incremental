@@ -129,3 +129,6 @@ class Isoapplicative f => Isoalternative f where
 
 skipMany :: Isoalternative f => f a -> f ()
 skipMany p = ((), []) <# isomany p
+
+skipSome :: Isoalternative f => f () -> f ()
+skipSome p = p .> skipMany p
