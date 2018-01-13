@@ -101,6 +101,9 @@ infixl 0 <?>
 someSpace :: Rec n (Isogrammar Char) ()
 someSpace = skipSome (((), ' ') <# satisfy isSpace)
 
+alphaNum :: Rec n (Isogrammar Char) Char
+alphaNum = satisfy isAlphaNum <?> "letter or digit"
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
