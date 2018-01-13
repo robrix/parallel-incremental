@@ -83,3 +83,12 @@ instance Category (<->) where
 
   Iso f1 t1 . Iso f2 t2 = Iso (f1 <=< f2) (t2 <=< t1)
 
+
+class Isofunctor f where
+  (<#>) :: (a <-> b) -> f a -> f b
+  infixr 4 <#>
+
+  (<#) :: (a, b) -> f b -> f a
+  (a, b) <# r = Iso (const (Just a)) (const (Just b)) <#> r
+
+  infixr 4 <#
