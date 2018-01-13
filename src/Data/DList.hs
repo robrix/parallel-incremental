@@ -19,3 +19,6 @@ instance Monoid (DList a) where
 
 instance Foldable DList where
   foldMap f (DList d) = foldMap f (d [])
+
+instance Functor DList where
+  fmap f (DList d) = DList (map f (d []) ++)
