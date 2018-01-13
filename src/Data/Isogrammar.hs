@@ -66,6 +66,9 @@ associate = Iso f g
 commute :: (a, b) <-> (b, a)
 commute = Iso f f where f (a, b) = Just (b, a)
 
+unit :: a <-> (a, ())
+unit = Iso (\ a -> Just (a, ())) (Just . fst)
+
 
 nil :: () <-> [a]
 nil = Iso (const (Just [])) (\ l -> case l of
