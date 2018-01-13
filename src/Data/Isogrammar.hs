@@ -3,6 +3,7 @@ module Data.Isogrammar where
 
 import Control.Applicative
 import Control.Category
+import Control.Monad
 import Data.Bifunctor
 import Data.Higher.Function as H
 import Data.Rec
