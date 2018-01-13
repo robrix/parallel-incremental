@@ -4,12 +4,17 @@ module Data.Isogrammar where
 import Control.Applicative
 import Control.Category
 import Control.Monad
+import qualified Control.Monad.State as M
 import Data.Bifunctor
 import Data.Char
+import Data.Delta
 import Data.DList
 import Data.Foldable (toList)
+import Data.Function (on)
 import Data.Higher.Function as H
+import Data.List (intercalate)
 import Data.Rec
+import Data.Result
 import Data.Semigroup
 import Prelude hiding ((.), foldl, id, iterate)
 
@@ -224,3 +229,69 @@ instance Isoalternative (Rec n (Isogrammar Char)) where
   a <!> b = In (Alt a b)
 
   isomany a = mu1 (\ more -> cons <#> a <.> more <!> isopure [])
+
+
+data State t
+  = State
+    { stateOffset :: {-# UNPACK #-} !Delta
+    , stateInput  ::                ![t]
+    }
+
+type Error t = ([String], State t)
+
+runIsogrammar :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
+runIsogrammar grammar ts = result (Left . map formatError) Right $ do
+  (a, s') <- M.runStateT (iterRec algebra grammar) (State mempty ts)
+  if null (stateInput s') then
+    Success a
+  else
+    Failure [(["eof"], s')]
+  where algebra :: (r ~> M.StateT (State t) (Result (Error t))) -> Isogrammar t r ~> M.StateT (State t) (Result (Error t))
+        algebra go g = case g of
+          Err e -> do
+            s <- M.get
+            M.lift $ Failure [(e, s)]
+          Nul a -> pure a
+          Sat p -> do
+            s <- M.get
+            case stateInput s of
+              c:cs' | Just a <- apply p c -> do
+                M.put (s { stateInput = cs' })
+                pure a
+              _ -> M.lift $ Failure [([], s)]
+          Map f a -> apply f <$> go a >>= maybe empty pure
+          Alt a b -> do
+            s <- M.get
+            (a, s') <- M.lift (M.runStateT (go a) s <|> M.runStateT (go b) s)
+            M.put s'
+            pure a
+          Seq a b -> (,) <$> go a <*> go b
+          Lab a l -> do
+            s <- M.get
+            (a, s') <- M.lift (first (\ (_, s) -> ([l], s)) (M.runStateT (go a) s))
+            M.put s'
+            pure a
+          End -> do
+            s <- M.get
+            case stateInput s of
+              [] -> pure ()
+              _  -> M.lift $ Failure [(["eof"], s)]
+
+formatError :: Show t => Error t -> String
+formatError ([], (State _ [])) = "no rule to match at eof"
+formatError ([], (State _ cs)) = "no rule to match at " ++ show cs
+formatError (es, (State _ [])) = "expected " ++ formatExpectation es ++ " at eof"
+formatError (es, (State _ cs)) = "expected " ++ formatExpectation es ++ " at " ++ show cs
+
+formatExpectation :: [String] -> String
+formatExpectation [] = "eof"
+formatExpectation [e1] = e1
+formatExpectation [e1, e2] = e1 ++ " or " ++ e2
+formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
+
+
+instance Eq (State t) where
+  (==) = (==) `on` stateOffset
+
+instance Ord (State t) where
+  compare = compare `on` stateOffset
