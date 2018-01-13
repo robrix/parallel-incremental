@@ -114,6 +114,11 @@ mkAbs = Iso (Just . uncurry Abs) (\ a -> case a of
   Abs n b -> Just (n, b)
   _       -> Nothing)
 
+mkApp :: (Lam, Lam) <-> Lam
+mkApp = Iso (Just . uncurry App) (\ a -> case a of
+  App a b -> Just (a, b)
+  _       -> Nothing)
+
 class Isofunctor f where
   (<#>) :: (a <-> b) -> f a -> f b
   infixr 4 <#>
