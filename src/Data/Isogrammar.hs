@@ -14,8 +14,9 @@ data Isogrammar t r a where
   Err :: [String] -> Isogrammar t r a
   Nul :: a -> Isogrammar t r a
   Sat :: (t <-> a) -> Isogrammar t r a
-  Alt :: (These  c  b  <-> a) -> r c -> r b -> Isogrammar t r a
-  Seq :: (      (c, b) <-> a) -> r c -> r b -> Isogrammar t r a
+  Map :: (b <-> a) -> r b -> Isogrammar t r a
+  Alt :: r a -> r b -> Isogrammar t r (These a  b)
+  Seq :: r a -> r b -> Isogrammar t r (      a, b)
   Lab :: r a -> String -> Isogrammar t r a
   End :: Isogrammar t r ()
 
@@ -27,8 +28,9 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
           Err _ -> Nothing
           Nul _ -> Just mempty
           Sat p -> char <$> unapply p a
-          Alt f c b -> unapply f a >>= these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b')
-          Seq f c b -> unapply f a >>= uncurry (<|>) . bimap (runK (yield c)) (runK (yield b))
+          Map f b -> unapply f a >>= runK (yield b)
+          Alt c b -> these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b') a
+          Seq c b -> uncurry (<|>) (bimap (runK (yield c)) (runK (yield b)) a)
           Lab r _ -> runK (yield r) a
           End -> Just mempty
 
