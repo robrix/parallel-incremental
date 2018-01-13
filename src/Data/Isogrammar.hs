@@ -13,7 +13,7 @@ import Prelude hiding ((.), id)
 data Isogrammar t r a
   = Err [String]
   | Nul a
-  | Sat (t <-> Maybe a)
+  | Sat (t <-> a)
   | forall c b . Alt (These  c  b  <-> a) (r c) (r b)
   | forall c b . Seq (      (c, b) <-> a) (r c) (r b)
   | Lab (r a) String
@@ -26,9 +26,9 @@ prettyPrint grammar a = toS <$> runK (iterRec algebra grammar) a
         algebra yield g = K $ \ a -> case g of
           Err _ -> Nothing
           Nul _ -> Just mempty
-          Sat p -> Just (char (to p (Just a)))
-          Alt f c b -> these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b') (to f a)
-          Seq f c b -> uncurry (<|>) (bimap (runK (yield c)) (runK (yield b)) (to f a))
+          Sat p -> char <$> unapply p a
+          Alt f c b -> unapply f a >>= these (runK (yield c)) (runK (yield b)) (\ c' b' -> runK (yield c) c' <|> runK (yield b) b')
+          Seq f c b -> unapply f a >>= uncurry (<|>) . bimap (runK (yield c)) (runK (yield b))
           Lab r _ -> runK (yield r) a
           End _ -> Just mempty
 
@@ -50,9 +50,10 @@ instance Monoid StringS where
   mappend = (<>)
 
 
-data (a <-> b) = Iso { from :: a -> b, to :: b -> a }
+data (a <-> b) = Iso { apply :: a -> Maybe b, unapply :: b -> Maybe a }
 
 instance Category (<->) where
-  id = Iso (\ x -> x) (\ x -> x)
+  id = Iso Just Just
 
-  Iso f1 t1 . Iso f2 t2 = Iso (f1 . f2) (t2 . t1)
+  Iso f1 t1 . Iso f2 t2 = Iso (f1 <=< f2) (t2 <=< t1)
+
