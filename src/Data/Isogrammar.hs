@@ -7,10 +7,8 @@ import Control.Monad
 import qualified Control.Monad.State as M
 import Data.Bifunctor
 import Data.Char
-import Data.Delta
 import Data.DList
 import Data.Foldable (toList)
-import Data.Function (on)
 import Data.Higher.Function as H
 import Data.List (intercalate)
 import Data.Rec
@@ -225,18 +223,14 @@ instance Isoalternative (Rec n (Isogrammar Char)) where
   isomany a = mu1 (\ more -> cons <#> a <.> more <!> isopure [])
 
 
-data State t
-  = State
-    { stateOffset :: {-# UNPACK #-} !Delta
-    , stateInput  ::                ![t]
-    }
+type State t = [t]
 
 type Error t = ([String], State t)
 
 parse :: Show t => (forall n . Rec n (Isogrammar t) a) -> [t] -> Either [String] a
 parse grammar ts = result (Left . map formatError) Right $ do
-  (a, s') <- M.runStateT (iterRec algebra grammar) (State mempty ts)
-  if null (stateInput s') then
+  (a, s') <- M.runStateT (iterRec algebra grammar) ts
+  if null s' then
     Success a
   else
     Failure [(["eof"], s')]
@@ -248,9 +242,9 @@ parse grammar ts = result (Left . map formatError) Right $ do
           Nul a -> pure a
           Sat p -> do
             s <- M.get
-            case stateInput s of
+            case s of
               c:cs' | Just a <- apply p c -> do
-                M.put (s { stateInput = cs' })
+                M.put cs'
                 pure a
               _ -> M.lift $ Failure [([], s)]
           Map f a -> apply f <$> go a >>= maybe empty pure
@@ -267,25 +261,18 @@ parse grammar ts = result (Left . map formatError) Right $ do
             pure a
           End -> do
             s <- M.get
-            case stateInput s of
+            case s of
               [] -> pure ()
               _  -> M.lift $ Failure [(["eof"], s)]
 
 formatError :: Show t => Error t -> String
-formatError ([], (State _ [])) = "no rule to match at eof"
-formatError ([], (State _ cs)) = "no rule to match at " ++ show cs
-formatError (es, (State _ [])) = "expected " ++ formatExpectation es ++ " at eof"
-formatError (es, (State _ cs)) = "expected " ++ formatExpectation es ++ " at " ++ show cs
+formatError ([], []) = "no rule to match at eof"
+formatError ([], cs) = "no rule to match at " ++ show cs
+formatError (es, []) = "expected " ++ formatExpectation es ++ " at eof"
+formatError (es, cs) = "expected " ++ formatExpectation es ++ " at " ++ show cs
 
 formatExpectation :: [String] -> String
 formatExpectation [] = "eof"
 formatExpectation [e1] = e1
 formatExpectation [e1, e2] = e1 ++ " or " ++ e2
 formatExpectation es = intercalate ", " (init es) ++ ", or " ++ last es
-
-
-instance Eq (State t) where
-  (==) = (==) `on` stateOffset
-
-instance Ord (State t) where
-  compare = compare `on` stateOffset
