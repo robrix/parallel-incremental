@@ -10,7 +10,9 @@ data M x y a where
   Z :: M x y a
   L :: a -> M 'S.L 'S.L a
   R :: M x1 'S.L a -> M x2 'S.L a -> M ('S.B x1 x2) 'S.L a
-  C :: M 'S.L y1 a -> M 'S.L y2 a -> M 'S.L ('S.B y1 y2) a
+  C :: M 'S.L y1 a
+    -> M 'S.L y2 a
+    -> M 'S.L ('S.B y1 y2) a
   Q :: M x1 y1 a -> M x2 y1 a
     -> M x1 y2 a -> M x2 y2 a
     -> M ('S.B x1 x2) ('S.B y1 y2) a
