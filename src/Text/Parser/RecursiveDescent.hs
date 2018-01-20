@@ -58,6 +58,11 @@ instance Applicative (Parser t) where
     let fa = f a
     fa `seq` pure (fa, s''))
 
+instance Align (Parser t) where
+  nil = Parser (const (Failure []))
+
+  alignWith f (Parser runA) (Parser runB) = Parser (\ s -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runA s) (runB s))
+
 formatError :: Show t => Error t -> String
 formatError ([], (State _ [])) = "no rule to match at eof"
 formatError ([], (State _ cs)) = "no rule to match at " ++ show cs
