@@ -8,7 +8,7 @@ import Data.Bifunctor
 import Data.Delta
 import Data.Function (on)
 import Data.Grammar
-import Data.Higher.Functor as H
+import Data.Higher.Function
 import Data.Rec
 import Data.Result
 import Data.These
@@ -49,6 +49,9 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
             _  -> Failure [(["eof"], s)]
 
 newtype Parser t a = Parser { runParser :: State t -> Result (Error t) (a, State t) }
+
+instance Functor (Parser t) where
+  fmap f (Parser run) = Parser (fmap (first f) . run)
 
 formatError :: Show t => Error t -> String
 formatError ([], (State _ [])) = "no rule to match at eof"
