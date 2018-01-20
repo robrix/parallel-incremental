@@ -38,7 +38,7 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
             c:cs' | Just a <- p c -> pure (a, s { stateInput = cs' })
             _                     -> Failure [([], s)]
           Alt f a b -> runParser (alignWith f (go a) (go b)) s
-          Seq f a b -> runParser (liftA2 f (go a) (go b)) s
+          Seq f a b -> runParser (liftA2    f (go a) (go b)) s
           Lab a l -> first (\ (_, s) -> ([l], s)) (runParser (go a) s)
           End a -> case stateInput s of
             [] -> pure (a, s)
