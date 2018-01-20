@@ -20,7 +20,7 @@ instance Ord Delta where
 instance Semigroup Delta where
   Delta l1 c1 b1 <> Delta l2 c2 b2 = Delta (l1 + l2) (addColumns c1 c2) (b1 + b2)
     where addColumns c1 c2 | l1 == 0 || l2 == 0 = c1 + c2
-                           | otherwise          = c2
+                           | otherwise          =      c2
 
 instance Monoid Delta where
   mempty = Delta 0 0 0
