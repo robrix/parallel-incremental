@@ -46,22 +46,6 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
 
 newtype Parser t a = Parser { runParser :: State t -> Result (Error t) (a, State t) }
 
-instance Functor (Parser t) where
-  fmap f (Parser run) = Parser (fmap (first f) . run)
-
-instance Applicative (Parser t) where
-  pure a = Parser (pure . (,) a)
-
-  Parser runF <*> Parser runA = Parser (\ s -> do
-    (f, s')  <- runF s
-    (a, s'') <- runA s'
-    let fa = f a
-    fa `seq` pure (fa, s''))
-
-instance Align (Parser t) where
-  nil = Parser (const (Failure []))
-
-  alignWith f (Parser runA) (Parser runB) = Parser (\ s -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runA s) (runB s))
 
 formatError :: Show t => Error t -> String
 formatError ([], (State _ [])) = "no rule to match at eof"
@@ -81,3 +65,21 @@ instance Eq (State t) where
 
 instance Ord (State t) where
   compare = compare `on` stateOffset
+
+
+instance Functor (Parser t) where
+  fmap f (Parser run) = Parser (fmap (first f) . run)
+
+instance Applicative (Parser t) where
+  pure a = Parser (pure . (,) a)
+
+  Parser runF <*> Parser runA = Parser (\ s -> do
+    (f, s')  <- runF s
+    (a, s'') <- runA s'
+    let fa = f a
+    fa `seq` pure (fa, s''))
+
+instance Align (Parser t) where
+  nil = Parser (const (Failure []))
+
+  alignWith f (Parser runA) (Parser runB) = Parser (\ s -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runA s) (runB s))
