@@ -3,6 +3,7 @@ module Text.Parser.RecursiveDescent
 ( runGrammar
 ) where
 
+import Control.Applicative
 import Data.Align
 import Data.Bifunctor
 import Data.Delta
@@ -37,12 +38,7 @@ runGrammar grammar ts = result (Left . map formatError) Right $ do
             c:cs' | Just a <- p c -> pure (a, s { stateInput = cs' })
             _                     -> Failure [([], s)]
           Alt f a b -> alignWith (these (first (f . This)) (first (f . That)) (\ (a1, s1) (a2, s2) -> (f (These a1 a2), min s1 s2))) (runParser (go a) s) (runParser (go b) s)
-          Seq f a b -> do
-            (a', s')  <-          runParser (go a) s
-            let fa = f a'
-            (b', s'') <- fa `seq` runParser (go b) s'
-            let fab = fa b'
-            fab             `seq` pure (fab, s'')
+          Seq f a b -> runParser (liftA2 f (go a) (go b)) s
           Lab a l -> first (\ (_, s) -> ([l], s)) (runParser (go a) s)
           End a -> case stateInput s of
             [] -> pure (a, s)
