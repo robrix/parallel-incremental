@@ -53,6 +53,15 @@ newtype Parser t a = Parser { runParser :: State t -> Result (Error t) (a, State
 instance Functor (Parser t) where
   fmap f (Parser run) = Parser (fmap (first f) . run)
 
+instance Applicative (Parser t) where
+  pure a = Parser (pure . (,) a)
+
+  Parser runF <*> Parser runA = Parser (\ s -> do
+    (f, s')  <- runF s
+    (a, s'') <- runA s'
+    let fa = f a
+    fa `seq` pure (fa, s''))
+
 formatError :: Show t => Error t -> String
 formatError ([], (State _ [])) = "no rule to match at eof"
 formatError ([], (State _ cs)) = "no rule to match at " ++ show cs
