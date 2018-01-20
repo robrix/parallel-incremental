@@ -24,12 +24,7 @@ data State t
 type Error t = ([String], State t)
 
 runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> [t] -> Either [String] a
-runGrammar grammar ts = result (Left . map formatError) Right $ do
-  (a, s') <- runParser (iterRec algebra grammar) (State mempty ts)
-  if null (stateInput s') then
-    Success a
-  else
-    Failure [(["eof"], s')]
+runGrammar grammar ts = result (Left . map formatError) Right (fst <$> runParser (iterRec algebra (grammar <* In (End ()))) (State mempty ts))
   where algebra :: (r ~> Parser t) -> Grammar t r ~> Parser t
         algebra go g = Parser $ \ s -> case g of
           Err e -> Failure [(e, s)]
