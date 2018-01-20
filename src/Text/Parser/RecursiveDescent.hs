@@ -26,16 +26,16 @@ type Error t = ([String], State t)
 runGrammar :: Show t => (forall n . Rec n (Grammar t) a) -> [t] -> Either [String] a
 runGrammar grammar ts = result (Left . map formatError) Right (fst <$> runParser (iterRec algebra (grammar <* In (End ()))) (State mempty ts))
   where algebra :: (r ~> Parser t) -> Grammar t r ~> Parser t
-        algebra go g = Parser $ \ s -> case g of
-          Err e -> Failure [(e, s)]
-          Nul a -> pure (a, s)
-          Sat p -> case stateInput s of
+        algebra go g = case g of
+          Err e     -> Parser $ \ s -> Failure [(e, s)]
+          Nul a     -> pure a
+          Sat p     -> Parser $ \ s -> case stateInput s of
             c:cs' | Just a <- p c -> pure (a, s { stateInput = cs' })
             _                     -> Failure [([], s)]
-          Alt f a b -> runParser (alignWith f (go a) (go b)) s
-          Seq f a b -> runParser (liftA2    f (go a) (go b)) s
-          Lab a l -> first (\ (_, s) -> ([l], s)) (runParser (go a) s)
-          End a -> case stateInput s of
+          Alt f a b -> alignWith f (go a) (go b)
+          Seq f a b -> liftA2    f (go a) (go b)
+          Lab a l   -> Parser $ \ s -> first (\ (_, s) -> ([l], s)) (runParser (go a) s)
+          End a     -> Parser $ \ s -> case stateInput s of
             [] -> pure (a, s)
             _  -> Failure [(["eof"], s)]
 
