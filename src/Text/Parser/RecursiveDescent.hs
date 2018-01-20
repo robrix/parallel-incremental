@@ -34,7 +34,7 @@ runGrammar grammar ts = result (Left . map formatError) Right (fst <$> runParser
             _                     -> Failure [([], s)]
           Alt f a b -> alignWith f (go a) (go b)
           Seq f a b -> liftA2    f (go a) (go b)
-          Lab a l   -> Parser (first (\ (_, s) -> ([l], s)) . runParser (go a))
+          Lab a l   -> Parser (first (first (const [l])) . runParser (go a))
           End a     -> Parser $ \ s -> case stateInput s of
             [] -> pure (a, s)
             _  -> Failure [(["eof"], s)]
