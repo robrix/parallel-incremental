@@ -3,30 +3,31 @@ module Text.Parser.Valiant where
 
 import Data.Bifunctor
 import Data.Functor.Classes
+import qualified Data.Map as Map
 import Data.Monoid hiding ((<>))
 import Data.Semigroup
 import qualified Data.Set as Set
 
-data CFG f n t = CFG { start :: n, rules :: [(n, f (Symbol n t))] }
+data CFG f n t = CFG { start :: n, rules :: Map.Map n (f (Symbol n t)) }
   deriving (Foldable, Functor, Traversable)
 
 size :: (Foldable f, Num a) => CFG f t n -> a
-size = getSum . foldMap (fromIntegral . length . snd) . rules
+size = getSum . foldMap (fromIntegral . length) . rules
 
 nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
-nullableSymbols = foldMap (\ (n, f) -> if null f then Set.singleton n else Set.empty) . rules
+nullableSymbols = Map.foldMapWithKey (\ n f -> if null f then Set.singleton n else Set.empty) . rules
 
 
 instance (Show1 f, Show t, Show n) => Show (CFG f n t) where
-  showsPrec d (CFG s r) = showParen (d > 10) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec (liftShowsPrec showsPrec1 showList1) (liftShowList showsPrec1 showList1) 0 r . showString " }"
+  showsPrec d (CFG s r) = showParen (d > 10) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec showsPrec1 showList1 0 r . showString " }"
     where showList1 :: (Show1 g, Show a) => [g a] -> ShowS
           showList1 = liftShowList showsPrec showList
 
 instance (Eq1 f, Eq t, Eq n) => Eq (CFG f n t) where
-  CFG s1 r1 == CFG s2 r2 = s1 == s2 && liftEq (liftEq eq1) r1 r2
+  CFG s1 r1 == CFG s2 r2 = s1 == s2 && liftEq eq1 r1 r2
 
 instance (Ord1 f, Ord t, Ord n) => Ord (CFG f n t) where
-  compare (CFG s1 r1) (CFG s2 r2) = compare s1 s2 <> liftCompare (liftCompare compare1) r1 r2
+  compare (CFG s1 r1) (CFG s2 r2) = compare s1 s2 <> liftCompare compare1 r1 r2
 
 
 data Symbol n t = N n | T t
