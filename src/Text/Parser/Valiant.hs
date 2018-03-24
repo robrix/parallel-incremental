@@ -4,7 +4,6 @@ module Text.Parser.Valiant where
 import Data.Bifunctor
 import Data.Functor.Classes
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
 import Data.Monoid hiding ((<>))
 import Data.Semigroup
 import qualified Data.Set as Set
@@ -18,8 +17,8 @@ size = getSum . foldMap (foldMap (fromIntegral . length)) . rules
 nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
 nullableSymbols = Map.foldMapWithKey (\ n f -> if any null f then Set.singleton n else Set.empty) . rules
 
-lookup :: Ord n => n -> CFG f n t -> [f (Symbol n t)]
-lookup sym = fromMaybe [] . Map.lookup sym . rules
+lookup :: (Ord n, Ord (f (Symbol n t))) => n -> CFG f n t -> Set.Set (f (Symbol n t))
+lookup sym = maybe mempty Set.fromList . Map.lookup sym . rules
 
 
 instance (Show1 f, Show t, Show n) => Show (CFG f n t) where
