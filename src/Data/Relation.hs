@@ -16,37 +16,37 @@ import qualified Data.Map as Map
 import Data.Semiring
 import Prelude hiding (lookup)
 
-newtype Relation i a = Relation (i -> Maybe a)
+newtype Relation f i a = Relation (i -> f a)
   deriving (Functor)
 
-fromList :: Ord i => [(i, a)] -> Relation i a
+fromList :: Ord i => [(i, a)] -> Relation Maybe i a
 fromList [] = mempty
 fromList [(i, a)] = singleton i a
 fromList list = Relation (`Map.lookup` map)
   where map = Map.fromList list
 
-fromRelation :: (i -> Maybe a) -> Relation i a
+fromRelation :: (i -> f a) -> Relation f i a
 fromRelation = Relation
 
-fromPredicate :: (i -> Bool) -> Relation i i
+fromPredicate :: Alternative f => (i -> Bool) -> Relation f i i
 fromPredicate predicate = Relation (\ i -> guard (predicate i) *> pure i)
 
-singleton :: Eq i => i -> a -> Relation i a
+singleton :: (Alternative f, Eq i) => i -> a -> Relation f i a
 singleton i a = Relation ((*> pure a) . guard . (== i))
 
-lookup :: i -> Relation i a -> Maybe a
+lookup :: i -> Relation f i a -> f a
 lookup i (Relation m) = m i
 
 
-instance Semigroup (Relation i a) where
+instance Alternative f => Semigroup (Relation f i a) where
   Relation p1 <> Relation p2 = Relation ((<|>) <$> p1 <*> p2)
 
-instance Monoid (Relation i a) where
-  mempty = Relation (const Nothing)
+instance Alternative f => Monoid (Relation f i a) where
+  mempty = Relation (const empty)
   mappend = (<>)
 
-instance Semigroup a => Semiring (Relation i a) where
+instance (Alternative f, Semigroup a) => Semiring (Relation f i a) where
   Relation p1 >< Relation p2 = Relation (liftA2 (<>) <$> p1 <*> p2)
 
-instance Semigroup i => Unital (Relation i i) where
-  one = fromRelation Just
+instance (Alternative f, Semigroup i) => Unital (Relation f i i) where
+  one = fromRelation pure
