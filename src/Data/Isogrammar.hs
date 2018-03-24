@@ -6,7 +6,7 @@ import Control.Category
 import Control.Monad
 import Data.Bifunctor
 import Data.Char
-import Data.DList
+import Data.DList (DList)
 import Data.Foldable (toList)
 import Data.Higher.Function as H
 import Data.List (intercalate)
