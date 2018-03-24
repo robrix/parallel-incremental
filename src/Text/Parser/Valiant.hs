@@ -13,7 +13,7 @@ size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (fromIntegral . length . snd) . rules
 
 instance (Show1 f, Show t, Show n) => Show (CFG f t n) where
-  showsPrec d (CFG s r) = showParen (d > 0) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec (liftShowsPrec showsPrec1 showList1) (liftShowList showsPrec1 showList1) 0 r . showString " }"
+  showsPrec d (CFG s r) = showParen (d > 10) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec (liftShowsPrec showsPrec1 showList1) (liftShowList showsPrec1 showList1) 0 r . showString " }"
     where showList1 :: (Show1 g, Show a) => [g a] -> ShowS
           showList1 = liftShowList showsPrec showList
 
