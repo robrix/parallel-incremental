@@ -26,3 +26,7 @@ newtype Mult a = Mult { getMult :: a }
 
 instance Semiring a => Semigroup (Mult a) where
   Mult a <> Mult b = Mult (a >< b)
+
+instance Unital a => Monoid (Mult a) where
+  mempty = Mult one
+  mappend = (<>)
