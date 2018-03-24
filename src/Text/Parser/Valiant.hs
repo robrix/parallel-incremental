@@ -37,3 +37,9 @@ instance Bifunctor Symbol where
 
 data BiNF s = U s | B (BiNF s) (BiNF s)
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
+
+instance Show1 BiNF where
+  liftShowsPrec sp _ = go
+    where go d b = case b of
+            U s   -> showsUnaryWith  sp    "U" d s
+            B a b -> showsBinaryWith go go "B" d a b
