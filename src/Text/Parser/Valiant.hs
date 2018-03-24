@@ -12,7 +12,7 @@ data CFG f n t = CFG { start :: n, rules :: Map.Map n [f (Symbol n t)] }
   deriving (Foldable, Functor, Traversable)
 
 size :: (Foldable f, Num a) => CFG f t n -> a
-size = getSum . foldMap (fromIntegral . length) . rules
+size = getSum . foldMap (foldMap (fromIntegral . length)) . rules
 
 nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
 nullableSymbols = Map.foldMapWithKey (\ n f -> if null f then Set.singleton n else Set.empty) . rules
