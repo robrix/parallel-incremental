@@ -3,6 +3,7 @@ module Data.Relation
 ( Relation
 , fromRelation
 , fromPredicate
+, singleton
 ) where
 
 import Control.Monad
@@ -15,3 +16,6 @@ fromRelation = Relation
 
 fromPredicate :: (i -> Bool) -> Relation i i
 fromPredicate predicate = Relation (\ i -> guard (predicate i) *> pure i)
+
+singleton :: Eq i => i -> a -> Relation i a
+singleton i a = Relation ((*> pure a) . guard . (== i))
