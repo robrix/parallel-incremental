@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards #-}
+{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards, TypeFamilies #-}
 module Data.Graph
 ( Graph(..)
 , Vertex(..)
@@ -8,6 +8,7 @@ module Data.Graph
 , Semiring(..)
 ) where
 
+import qualified Algebra.Graph.Class as G
 import Data.Function (on)
 import Data.List (union, unionBy)
 import Data.Semiring
@@ -51,3 +52,10 @@ instance Monoid (Graph a) where
 
 instance Semiring (Graph a) where
   Graph v1 e1 >< Graph v2 e2 = Graph (unionBy ((==) `on` vertexIdentifier) v1 v2) (e1 `union` e2 `union` ((Edge `on` vertexIdentifier) <$> v1 <*> v2))
+
+instance G.Graph (Graph a) where
+  type Vertex (Graph a) = Vertex a
+  vertex v = Graph [v] []
+  empty = zero
+  overlay = (<>)
+  connect = (><)
