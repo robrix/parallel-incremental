@@ -5,12 +5,17 @@ import Data.Bifunctor
 import Data.Functor.Classes
 import Data.Monoid hiding ((<>))
 import Data.Semigroup
+import qualified Data.Set as Set
 
 data CFG f t n = CFG { start :: n, rules :: [(n, f (Symbol t n))] }
   deriving (Foldable, Functor, Traversable)
 
 size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (fromIntegral . length . snd) . rules
+
+nullableSymbols :: (Foldable f, Ord n) => CFG f t n -> Set.Set n
+nullableSymbols = foldMap (\ (n, f) -> if null f then Set.singleton n else Set.empty) . rules
+
 
 instance (Show1 f, Show t, Show n) => Show (CFG f t n) where
   showsPrec d (CFG s r) = showParen (d > 10) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec (liftShowsPrec showsPrec1 showList1) (liftShowList showsPrec1 showList1) 0 r . showString " }"
