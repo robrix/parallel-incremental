@@ -3,7 +3,7 @@ module Text.Parser.Valiant where
 import Data.Bifunctor
 import Data.Monoid
 
-data TwoNF t = U t | B (TwoNF t) (TwoNF t)
+data TwoNF s = U s | B (TwoNF s) (TwoNF s)
 
 data CFG t n = CFG { start :: n, rules :: [(n, [Symbol t n])] }
 
