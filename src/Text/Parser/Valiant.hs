@@ -5,9 +5,9 @@ import Data.Monoid
 
 data TwoNF s = U s | B (TwoNF s) (TwoNF s)
 
-data CFG t n = CFG { start :: n, rules :: [(n, [Symbol t n])] }
+data CFG f t n = CFG { start :: n, rules :: [(n, f (Symbol t n))] }
 
-size :: Num a => CFG t n -> a
+size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (fromIntegral . length . snd) . rules
 
 data Symbol t n = T t | N n
