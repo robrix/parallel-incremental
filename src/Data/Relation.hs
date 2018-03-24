@@ -63,3 +63,7 @@ instance (Alternative m, Monad m) => Cat.Category (Relation m) where
 
 instance Functor m => Profunctor (Relation m) where
   dimap f g (Relation r) = Relation (fmap g . r . f)
+
+instance Functor m => Strong (Relation m) where
+  first'  (Relation r) = Relation (\ (i, j) -> flip (,) j <$> r i)
+  second' (Relation r) = Relation (\ (i, j) ->      (,) i <$> r j)
