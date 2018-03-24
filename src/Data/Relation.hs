@@ -6,6 +6,7 @@ module Data.Relation
 , fromPredicate
 , singleton
 , lookup
+, related
 , Semigroup(..)
 , Semiring(..)
 ) where
@@ -36,6 +37,9 @@ singleton i a = Relation ((*> pure a) . guard . (== i))
 
 lookup :: i -> Relation f i a -> f a
 lookup i (Relation m) = m i
+
+related :: (Foldable f, Eq a) => Relation f i a -> i -> a -> Bool
+related r = flip elem . flip lookup r
 
 
 instance Alternative f => Semigroup (Relation f i a) where
