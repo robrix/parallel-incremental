@@ -15,6 +15,7 @@ import Control.Applicative
 import qualified Control.Category as Cat
 import Control.Monad
 import qualified Data.Map as Map
+import Data.Profunctor
 import Data.Semiring
 import Prelude hiding (lookup)
 
@@ -59,3 +60,6 @@ instance (Alternative f, Semigroup i) => Unital (Relation f i i) where
 instance (Alternative m, Monad m) => Cat.Category (Relation m) where
   id = Relation pure
   r2 . r1 = Relation (\ i -> lookup i r1 >>= flip lookup r2)
+
+instance Functor m => Profunctor (Relation m) where
+  dimap f g (Relation r) = Relation (fmap g . r . f)
