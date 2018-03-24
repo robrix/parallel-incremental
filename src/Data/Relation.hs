@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveFunctor, FlexibleInstances #-}
 module Data.Relation
 ( Relation
+, fromList
 , fromRelation
 , fromPredicate
 , singleton
@@ -11,11 +12,18 @@ module Data.Relation
 
 import Control.Applicative
 import Control.Monad
+import qualified Data.Map as Map
 import Data.Semiring
 import Prelude hiding (lookup)
 
 newtype Relation i a = Relation (i -> Maybe a)
   deriving (Functor)
+
+fromList :: Ord i => [(i, a)] -> Relation i a
+fromList [] = mempty
+fromList [(i, a)] = singleton i a
+fromList list = Relation (`Map.lookup` map)
+  where map = Map.fromList list
 
 fromRelation :: (i -> Maybe a) -> Relation i a
 fromRelation = Relation

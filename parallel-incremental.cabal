@@ -44,6 +44,7 @@ library
                      , Text.Printer.RecursiveAscent
   build-depends:       algebraic-graphs
                      , base >=4.10 && <4.11
+                     , containers
                      , dlist
                      , mtl
                      , parsers
