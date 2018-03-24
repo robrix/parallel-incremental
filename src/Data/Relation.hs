@@ -67,3 +67,7 @@ instance Functor m => Profunctor (Relation m) where
 instance Functor m => Strong (Relation m) where
   first'  (Relation r) = Relation (\ (i, j) -> flip (,) j <$> r i)
   second' (Relation r) = Relation (\ (i, j) ->      (,) i <$> r j)
+
+instance Applicative m => Choice (Relation m) where
+  left'  (Relation r) = Relation (either (fmap   Left . r) (pure . Right))
+  right' (Relation r) = Relation (either (pure . Left)     (fmap   Right . r))
