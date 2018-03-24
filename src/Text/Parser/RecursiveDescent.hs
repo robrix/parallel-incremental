@@ -11,6 +11,7 @@ import Data.Function (on)
 import Data.Grammar
 import Data.Higher.Function
 import Data.Rec
+import Data.Relation as Relation
 import Data.Result
 import Data.These
 import Data.List (intercalate)
@@ -30,8 +31,8 @@ runGrammar grammar ts = result (Left . map formatError) Right (fst <$> runParser
           Err e     -> Parser (Failure . pure . (,) e)
           Nul a     -> pure a
           Sat p     -> Parser $ \ s -> case stateInput s of
-            c:cs' | Just a <- p c -> pure (a, s { stateInput = cs' })
-            _                     -> Failure [([], s)]
+            c:cs' | Just a <- Relation.lookup c p -> pure (a, s { stateInput = cs' })
+            _                                     -> Failure [([], s)]
           Alt f a b -> alignWith f (go a) (go b)
           Seq f a b -> liftA2    f (go a) (go b)
           Lab a l   -> Parser (first (first (const [l])) . runParser (go a))

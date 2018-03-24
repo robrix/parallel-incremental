@@ -7,7 +7,6 @@ module Data.Grammar
 import qualified Algebra.Graph.Class as G
 import Control.Applicative
 import qualified Control.Higher.Applicative as H
-import Control.Monad (guard)
 import Control.Monad.State
 import Data.Graph
 import qualified Data.Higher.Foldable as H
@@ -17,6 +16,7 @@ import Data.Higher.Functor.Classes as H
 import Data.Higher.Functor.Foldable
 import qualified Data.Higher.Traversable as H
 import Data.Rec
+import Data.Relation as Relation
 import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators
@@ -25,7 +25,7 @@ import Text.Parser.Token
 data Grammar t r a
   = Err [String]
   | Nul a
-  | Sat (t -> Maybe a)
+  | Sat (Relation t a)
   | forall c b . Alt (These c    b -> a) (r c) (r b)
   | forall c b . Seq (      c -> b -> a) (r c) (r b)
   | Lab (r a) String
@@ -94,7 +94,7 @@ instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Mu1
   notFollowedBy a = a *> embed1 (Err ["unexpected"]) <|> pure ()
 
 instance (Corecursive1 (r (Grammar Char)), Cobase1 (r (Grammar Char)) ~ Grammar Char, Mu1 (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
-  satisfy p = embed1 (Sat (\ c -> guard (p c) *> Just c))
+  satisfy p = embed1 (Sat (fromPredicate p))
 
 instance (Corecursive1 (r (Grammar Char)), Cobase1 (r (Grammar Char)) ~ Grammar Char, Mu1 (r (Grammar Char))) => TokenParsing (r (Grammar Char))
 
