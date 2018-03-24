@@ -19,6 +19,9 @@ instance (Show1 f, Show t, Show n) => Show (CFG f t n) where
     where showList1 :: (Show1 g, Show a) => [g a] -> ShowS
           showList1 = liftShowList showsPrec showList
 
+instance (Eq1 f, Eq t, Eq n) => Eq (CFG f t n) where
+  CFG s1 r1 == CFG s2 r2 = s1 == s2 && liftEq (liftEq eq1) r1 r2
+
 
 data Symbol t n = T t | N n
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
