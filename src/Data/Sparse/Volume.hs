@@ -4,7 +4,7 @@ module Data.Sparse.Volume where
 import qualified Data.Sparse.Shape as S
 
 data V x y z a where
-  Z :: V x y z a
+  N :: V x y z a
   U :: a -> V 'S.U 'S.U 'S.U a
   R :: V x1 'S.U z1 a -> V x2 'S.U z2 a -> V ('S.B x1 x2) 'S.U ('S.B z1 z2) a
   C :: V 'S.U y1 z1 a -> V 'S.U y2 z2 a -> V 'S.U ('S.B y1 y2) ('S.B z1 z2) a
