@@ -29,6 +29,7 @@ library
                      , Data.Higher.Traversable
                      , Data.Isogrammar
                      , Data.Rec
+                     , Data.Relation
                      , Data.Result
                      , Data.Semiring
                      , Data.Sparse.Matrix
