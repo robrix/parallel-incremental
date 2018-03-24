@@ -8,11 +8,11 @@ import qualified Data.Sparse.Vector as V
 
 data M x y a where
   Z :: M x y a
-  L :: a -> M 'S.L 'S.L a
-  R :: M x1 'S.L a -> M x2 'S.L a -> M ('S.B x1 x2) 'S.L a
-  C :: M 'S.L y1 a
-    -> M 'S.L y2 a
-    -> M 'S.L ('S.B y1 y2) a
+  U :: a -> M 'S.U 'S.U a
+  R :: M x1 'S.U a -> M x2 'S.U a -> M ('S.B x1 x2) 'S.U a
+  C :: M 'S.U y1 a
+    -> M 'S.U y2 a
+    -> M 'S.U ('S.B y1 y2) a
   Q :: M x1 y1 a -> M x2 y1 a
     -> M x1 y2 a -> M x2 y2 a
     -> M ('S.B x1 x2) ('S.B y1 y2) a
@@ -28,9 +28,9 @@ deriving instance Show a => Show (SomeM a)
 z :: M x y a
 z = Z
 
-l :: (Eq a, Monoid a) => a -> M 'S.L 'S.L a
+l :: (Eq a, Monoid a) => a -> M 'S.U 'S.U a
 l x | x == mempty = Z
-    | otherwise   = L x
+    | otherwise   = U x
 
 q0 :: M ('S.B x1 x2) ('S.B y1 y2) a
 q0 = Q Z Z Z Z
@@ -39,25 +39,25 @@ q :: M x1 y1 a -> M x2 y1 a -> M x1 y2 a -> M x2 y2 a -> M ('S.B x1 x2) ('S.B y1
 q Z Z Z Z = Z
 q a11 a12 a21 a22 = Q a11 a12 a21 a22
 
-r :: M x1 'S.L a -> M x2 'S.L a -> M ('S.B x1 x2) 'S.L a
+r :: M x1 'S.U a -> M x2 'S.U a -> M ('S.B x1 x2) 'S.U a
 r Z Z = Z
 r a11 a12 = R a11 a12
 
-c :: M 'S.L y1 a -> M 'S.L y2 a -> M 'S.L ('S.B y1 y2) a
+c :: M 'S.U y1 a -> M 'S.U y2 a -> M 'S.U ('S.B y1 y2) a
 c Z Z = Z
 c a11 a21 = C a11 a21
 
 
 fromVec :: V.V s a -> M s s a
 fromVec V.Z = Z
-fromVec (V.L a) = L a
+fromVec (V.U a) = U a
 fromVec (V.B v1 v2) = q (fromVec v1) Z Z (fromVec v2)
 
 
 instance (Eq a, Monoid a, Semigroup a) => Semigroup (M x y a) where
   Z <> x = x
   x <> Z = x
-  L x <> L y = l (x <> y)
+  U x <> U y = l (x <> y)
   R a11 a12 <> R b11 b12 = r (a11 <> b11) (a12 <> b12)
   C a11 a21 <> C b11 b21 = c (a11 <> b11) (a21 <> b21)
   Q a11 a12 a21 a22 <> Q b11 b12 b21 b22
@@ -73,9 +73,9 @@ infixr 7 `mult`
 mult :: (Eq a, Semiring a) => M x y a -> M z x a -> M z y a
 Z `mult` _ = Z
 _ `mult` Z = Z
-L x `mult` L y = l (x >< y)
-L x `mult` R a11 a12 = r (L x `mult` a11) (L x `mult` a12)
-C a11 a21 `mult` L x = c (a11 `mult` L x) (a21 `mult` L x)
+U x `mult` U y = l (x >< y)
+U x `mult` R a11 a12 = r (U x `mult` a11) (U x `mult` a12)
+C a11 a21 `mult` U x = c (a11 `mult` U x) (a21 `mult` U x)
 R a11 a12 `mult` C b11 b21 = a11 `mult` b11 <> a12 `mult` b21
 C a11 a21 `mult` R b11 b12
   = q (a11 `mult` b11) (a11 `mult` b12)

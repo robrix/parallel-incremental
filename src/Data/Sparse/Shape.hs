@@ -3,7 +3,7 @@ module Data.Sparse.Shape where
 
 import Data.Semigroup
 
-data Shape = L | B Shape Shape
+data Shape = U | B Shape Shape
   deriving (Eq, Ord, Show)
 
 
@@ -14,7 +14,7 @@ instance Semigroup Shape where
 class Size (s :: Shape) where
   size :: Num n => n
 
-instance Size 'L where
+instance Size 'U where
   size = 1
 
 instance (Size s1, Size s2) => Size ('B s1 s2) where
