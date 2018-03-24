@@ -4,12 +4,13 @@ module Text.Parser.Valiant where
 import Data.Bifunctor
 import Data.Functor.Classes
 import qualified Data.Map as Map
+import Data.Maybe (fromMaybe)
 import Data.Monoid hiding ((<>))
 import Data.Semigroup
 import qualified Data.Set as Set
 
-data CFG f n t = CFG { start :: n, rules :: Map.Map n [f (Symbol n t)] }
-  deriving (Foldable, Functor, Traversable)
+data CFG f n t = CFG { start :: n, rules :: Map.Map n (Set.Set (f (Symbol n t))) }
+  deriving (Foldable)
 
 size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (foldMap (fromIntegral . length)) . rules
@@ -18,7 +19,7 @@ nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
 nullableSymbols = Map.foldMapWithKey (\ n f -> if any null f then Set.singleton n else Set.empty) . rules
 
 lookup :: (Ord n, Ord (f (Symbol n t))) => n -> CFG f n t -> Set.Set (f (Symbol n t))
-lookup sym = maybe mempty Set.fromList . Map.lookup sym . rules
+lookup sym = fromMaybe mempty . Map.lookup sym . rules
 
 
 instance (Show1 f, Show t, Show n) => Show (CFG f n t) where
