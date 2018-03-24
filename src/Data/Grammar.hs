@@ -42,7 +42,7 @@ toGraph g = evalState (go G.empty g) 0
           i <- get
           go parent (g (Const (G.vertex (Vertex i Nothing))))
         go parent (In r) = case r of
-          Err _     -> (parent ><) <$> v "Err"
+          Err es    -> (parent ><) <$> v (unlines ("Err" : es))
           Nul _     -> (parent ><) <$> v "Nul"
           Sat _     -> (parent ><) <$> v "Sat"
           Alt _ a b -> do
