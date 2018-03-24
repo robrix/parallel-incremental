@@ -18,6 +18,7 @@ import qualified Data.Map as Map
 import Data.Profunctor
 import Data.Profunctor.Rep
 import Data.Profunctor.Sieve
+import Data.Profunctor.Traversing
 import Data.Semiring
 import Prelude hiding (lookup)
 
@@ -80,3 +81,7 @@ instance Functor m => Sieve (Relation m) m where
 instance Functor m => Representable (Relation m) where
   type Rep (Relation m) = m
   tabulate = Relation
+
+instance Applicative m => Traversing (Relation m) where
+  traverse' = Relation . traverse . runRelation
+  wander f = Relation . f . runRelation
