@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFunctor, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveFunctor, FlexibleInstances, MultiParamTypeClasses, TypeFamilies #-}
 module Data.Relation
 ( Relation
 , fromList
@@ -16,6 +16,7 @@ import qualified Control.Category as Cat
 import Control.Monad
 import qualified Data.Map as Map
 import Data.Profunctor
+import Data.Profunctor.Rep
 import Data.Profunctor.Sieve
 import Data.Semiring
 import Prelude hiding (lookup)
@@ -75,3 +76,7 @@ instance Applicative m => Choice (Relation m) where
 
 instance Functor m => Sieve (Relation m) m where
   sieve = runRelation
+
+instance Functor m => Representable (Relation m) where
+  type Rep (Relation m) = m
+  tabulate = Relation
