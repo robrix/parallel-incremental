@@ -6,9 +6,6 @@ import Data.Functor.Classes
 import Data.Monoid hiding ((<>))
 import Data.Semigroup
 
-data BiNF s = U s | B (BiNF s) (BiNF s)
-  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
-
 data CFG f t n = CFG { start :: n, rules :: [(n, f (Symbol t n))] }
   deriving (Foldable, Functor, Traversable)
 
@@ -36,3 +33,7 @@ symbol _ g (N n) = g n
 
 instance Bifunctor Symbol where
   bimap f g = symbol (T . f) (N . g)
+
+
+data BiNF s = U s | B (BiNF s) (BiNF s)
+  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
