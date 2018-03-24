@@ -5,6 +5,7 @@ module Data.Relation
 , fromPredicate
 , singleton
 , lookup
+, Semigroup(..)
 ) where
 
 import Control.Applicative
