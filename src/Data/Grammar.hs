@@ -4,11 +4,12 @@ module Data.Grammar
 , toGraph
 ) where
 
+import Algebra.Graph.Class hiding (toGraph)
 import Control.Applicative
 import qualified Control.Higher.Applicative as H
 import Control.Monad (guard)
 import Control.Monad.State
-import Data.Graph
+import Data.Graph as G
 import qualified Data.Higher.Foldable as H
 import qualified Data.Higher.Functor as H
 import qualified Data.Higher.Monoid as H
@@ -30,35 +31,35 @@ data Grammar t r a
   | Lab (r a) String
   | End a
 
-vertex :: a -> State Int (Graph a)
-vertex a = StateT (\ i -> pure (Graph [Vertex i (Just a)] [], succ i))
+v :: a -> State Int (G.Graph a)
+v a = StateT (\ i -> pure (vertex (Vertex i (Just a)), succ i))
 
-toGraph :: (forall n . Rec n (Grammar t) a) -> Graph String
+toGraph :: (forall n . Rec n (Grammar t) a) -> G.Graph String
 toGraph g = evalState (go Nothing g) 0
-  where go :: Maybe (Graph String) -> Rec (Const (Graph String)) (Grammar t) x -> State Int (Graph String)
+  where go :: Maybe (G.Graph String) -> Rec (Const (G.Graph String)) (Grammar t) x -> State Int (G.Graph String)
         go parent (Var v) = pure (maybe id (><) parent (getConst v))
         go parent (Mu g) = do
           i <- get
           go parent (g (Const (Graph [Vertex i Nothing] [])))
         go parent (In r) = case r of
-          Err _     -> maybe id (><) parent <$> vertex "Err"
-          Nul _     -> maybe id (><) parent <$> vertex "Nul"
-          Sat _     -> maybe id (><) parent <$> vertex "Sat"
+          Err _     -> maybe id (><) parent <$> v "Err"
+          Nul _     -> maybe id (><) parent <$> v "Nul"
+          Sat _     -> maybe id (><) parent <$> v "Sat"
           Alt _ a b -> do
-            alt <- vertex "Alt"
+            alt <- v "Alt"
             a' <- go (Just alt) a
             b' <- go (Just alt) b
             pure (maybe id (><) parent alt <> a' <> b')
           Seq _ a b -> do
-            seq <- vertex "Seq"
+            seq <- v "Seq"
             a' <- go (Just seq) a
             b' <- go (Just seq) b
             pure (maybe id (><) parent seq <> a' <> b')
           Lab a s   -> do
-            lab <- vertex ("Lab " ++ show s)
+            lab <- v ("Lab " ++ show s)
             a' <- go (Just lab) a
             pure (maybe id (><) parent lab <> a')
-          End _     -> maybe id (><) parent <$> vertex "End"
+          End _     -> maybe id (><) parent <$> v "End"
 
 
 instance (Bounded t, Enum t, Show t) => H.Show1 (Grammar t) where
@@ -90,7 +91,7 @@ instance (Corecursive1 (r (Grammar t)), Cobase1 (r (Grammar t)) ~ Grammar t, Mu1
   a <?> s = embed1 (Lab a s)
   eof = embed1 (End ())
   unexpected s = embed1 (Err [s])
-  notFollowedBy a = a *> empty <|> pure ()
+  notFollowedBy a = a *> embed1 (Err ["unexpected"]) <|> pure ()
 
 instance (Corecursive1 (r (Grammar Char)), Cobase1 (r (Grammar Char)) ~ Grammar Char, Mu1 (r (Grammar Char))) => CharParsing (r (Grammar Char)) where
   satisfy p = embed1 (Sat (\ c -> guard (p c) *> Just c))
