@@ -29,8 +29,8 @@ z :: M x y a
 z = Z
 
 l :: (Eq a, Monoid a) => a -> M 'S.L 'S.L a
-l x | x == zero = Z
-    | otherwise = L x
+l x | x == mempty = Z
+    | otherwise   = L x
 
 q0 :: M ('S.B x1 x2) ('S.B y1 y2) a
 q0 = Q Z Z Z Z

@@ -1,15 +1,14 @@
 module Data.Semiring
-( zero
-, Semiring(..)
+( Semiring(..)
 , Semigroup(..)
 ) where
 
 import Data.Semigroup
 
-zero :: Monoid a => a
-zero = mempty
-
 class (Semigroup a, Monoid a) => Semiring a where
+  zero :: a
+  zero = mempty
+
   (><) :: a -> a -> a
 
   infixr 7 ><
