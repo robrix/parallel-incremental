@@ -19,7 +19,7 @@ import Data.Profunctor
 import Data.Semiring
 import Prelude hiding (lookup)
 
-newtype Relation f i a = Relation (i -> f a)
+newtype Relation f i a = Relation { runRelation :: i -> f a }
   deriving (Functor)
 
 fromList :: Ord i => [(i, a)] -> Relation Maybe i a
