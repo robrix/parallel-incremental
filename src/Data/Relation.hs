@@ -30,3 +30,7 @@ lookup i (Relation m) = m i
 
 instance Semigroup (Relation i a) where
   Relation p1 <> Relation p2 = Relation ((<|>) <$> p1 <*> p2)
+
+instance Monoid (Relation i a) where
+  mempty = Relation (const Nothing)
+  mappend = (<>)
