@@ -40,7 +40,7 @@ toGraph g = evalState (go G.empty g) 0
         go parent (Var v) = pure (parent >< (getConst v))
         go parent (Mu g) = do
           i <- get
-          go parent (g (Const (Graph [Vertex i Nothing] [])))
+          go parent (g (Const (G.vertex (Vertex i Nothing))))
         go parent (In r) = case r of
           Err _     -> (parent ><) <$> v "Err"
           Nul _     -> (parent ><) <$> v "Nul"
