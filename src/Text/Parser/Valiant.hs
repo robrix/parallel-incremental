@@ -15,7 +15,7 @@ size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (foldMap (fromIntegral . length)) . rules
 
 nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
-nullableSymbols = Map.foldMapWithKey (\ n f -> if null f then Set.singleton n else Set.empty) . rules
+nullableSymbols = Map.foldMapWithKey (\ n f -> if any null f then Set.singleton n else Set.empty) . rules
 
 
 instance (Show1 f, Show t, Show n) => Show (CFG f n t) where
