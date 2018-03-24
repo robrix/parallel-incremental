@@ -35,24 +35,28 @@ instance Bifunctor Symbol where
   bimap f g = symbol (T . f) (N . g)
 
 
-data BiNF s = U s | B (BiNF s) (BiNF s)
+data BiNF s = Z | U s | B (BiNF s) (BiNF s)
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Show1 BiNF where
   liftShowsPrec sp _ = go
     where go d b = case b of
+            Z     -> showString            "Z"
             U s   -> showsUnaryWith  sp    "U" d s
             B a b -> showsBinaryWith go go "B" d a b
 
 instance Eq1 BiNF where
   liftEq eq = go
-    where go (U s1)    (U s2)    = eq s1 s2
+    where go Z         Z         = True
+          go (U s1)    (U s2)    = eq s1 s2
           go (B a1 b1) (B a2 b2) = go a1 a2 && go b1 b2
           go _         _         = False
 
 instance Ord1 BiNF where
   liftCompare compare = go
-    where go (U s1)    (U s2)    = compare s1 s2
+    where go Z         Z         = EQ
+          go Z         _         = LT
+          go (U s1)    (U s2)    = compare s1 s2
           go (U _)     _         = LT
           go (B a1 b1) (B a2 b2) = go a1 a2 <> go b1 b2
           go _         _         = GT
