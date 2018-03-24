@@ -3,7 +3,8 @@ module Text.Parser.Valiant where
 
 import Data.Bifunctor
 import Data.Functor.Classes
-import Data.Monoid
+import Data.Monoid hiding ((<>))
+import Data.Semigroup
 
 data BiNF s = U s | B (BiNF s) (BiNF s)
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
@@ -21,6 +22,9 @@ instance (Show1 f, Show t, Show n) => Show (CFG f t n) where
 
 instance (Eq1 f, Eq t, Eq n) => Eq (CFG f t n) where
   CFG s1 r1 == CFG s2 r2 = s1 == s2 && liftEq (liftEq eq1) r1 r2
+
+instance (Ord1 f, Ord t, Ord n) => Ord (CFG f t n) where
+  compare (CFG s1 r1) (CFG s2 r2) = compare s1 s2 <> liftCompare (liftCompare compare1) r1 r2
 
 
 data Symbol t n = T t | N n
