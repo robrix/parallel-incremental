@@ -43,3 +43,9 @@ instance Show1 BiNF where
     where go d b = case b of
             U s   -> showsUnaryWith  sp    "U" d s
             B a b -> showsBinaryWith go go "B" d a b
+
+instance Eq1 BiNF where
+  liftEq eq = go
+    where go (U s1)    (U s2)    = eq s1 s2
+          go (B a1 b1) (B a2 b2) = go a1 a2 && go b1 b2
+          go _         _         = False
