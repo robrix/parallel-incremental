@@ -6,11 +6,12 @@ module Data.Relation
 , singleton
 , lookup
 , Semigroup(..)
+, Semiring(..)
 ) where
 
 import Control.Applicative
 import Control.Monad
-import Data.Semigroup
+import Data.Semiring
 import Prelude hiding (lookup)
 
 newtype Relation i a = Relation (i -> Maybe a)
@@ -35,3 +36,6 @@ instance Semigroup (Relation i a) where
 instance Monoid (Relation i a) where
   mempty = Relation (const Nothing)
   mappend = (<>)
+
+instance Semigroup a => Semiring (Relation i a) where
+  Relation p1 >< Relation p2 = Relation ((<>) <$> p1 <*> p2)
