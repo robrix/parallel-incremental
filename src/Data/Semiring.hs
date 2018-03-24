@@ -2,6 +2,7 @@
 module Data.Semiring
 ( Semiring(..)
 , Semigroup(..)
+, Unital(..)
 , Mult(..)
 ) where
 
@@ -15,6 +16,9 @@ class (Semigroup a, Monoid a) => Semiring a where
   (><) :: a -> a -> a
 
   infixr 7 ><
+
+class Semiring a => Unital a where
+  one :: a
 
 
 newtype Mult a = Mult { getMult :: a }
