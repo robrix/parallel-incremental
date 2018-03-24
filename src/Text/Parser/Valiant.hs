@@ -4,6 +4,8 @@ import Data.Bifunctor
 
 data TwoNF t = U t | B (TwoNF t) (TwoNF t)
 
+data CFG t n = CFG { start :: n, rules :: [(n, [Production t n])] }
+
 data Production t n = T t | N n
 
 instance Bifunctor Production where
