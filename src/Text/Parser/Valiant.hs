@@ -7,37 +7,37 @@ import Data.Monoid hiding ((<>))
 import Data.Semigroup
 import qualified Data.Set as Set
 
-data CFG f t n = CFG { start :: n, rules :: [(n, f (Symbol t n))] }
+data CFG f n t = CFG { start :: n, rules :: [(n, f (Symbol n t))] }
   deriving (Foldable, Functor, Traversable)
 
 size :: (Foldable f, Num a) => CFG f t n -> a
 size = getSum . foldMap (fromIntegral . length . snd) . rules
 
-nullableSymbols :: (Foldable f, Ord n) => CFG f t n -> Set.Set n
+nullableSymbols :: (Foldable f, Ord n) => CFG f n t -> Set.Set n
 nullableSymbols = foldMap (\ (n, f) -> if null f then Set.singleton n else Set.empty) . rules
 
 
-instance (Show1 f, Show t, Show n) => Show (CFG f t n) where
+instance (Show1 f, Show t, Show n) => Show (CFG f n t) where
   showsPrec d (CFG s r) = showParen (d > 10) $ showString "CFG { start = " . showsPrec 0 s . showString ", rules" . liftShowsPrec (liftShowsPrec showsPrec1 showList1) (liftShowList showsPrec1 showList1) 0 r . showString " }"
     where showList1 :: (Show1 g, Show a) => [g a] -> ShowS
           showList1 = liftShowList showsPrec showList
 
-instance (Eq1 f, Eq t, Eq n) => Eq (CFG f t n) where
+instance (Eq1 f, Eq t, Eq n) => Eq (CFG f n t) where
   CFG s1 r1 == CFG s2 r2 = s1 == s2 && liftEq (liftEq eq1) r1 r2
 
-instance (Ord1 f, Ord t, Ord n) => Ord (CFG f t n) where
+instance (Ord1 f, Ord t, Ord n) => Ord (CFG f n t) where
   compare (CFG s1 r1) (CFG s2 r2) = compare s1 s2 <> liftCompare (liftCompare compare1) r1 r2
 
 
-data Symbol t n = T t | N n
+data Symbol n t = N n | T t
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
-symbol :: (t -> a) -> (n -> a) -> Symbol t n -> a
-symbol f _ (T t) = f t
-symbol _ g (N n) = g n
+symbol :: (n -> a) -> (t -> a) -> Symbol n t -> a
+symbol f _ (N n) = f n
+symbol _ g (T t) = g t
 
 instance Bifunctor Symbol where
-  bimap f g = symbol (T . f) (N . g)
+  bimap f g = symbol (N . f) (T . g)
 
 
 data BiNF s = Z | U s | B (BiNF s) (BiNF s)
