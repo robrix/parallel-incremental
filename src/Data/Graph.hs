@@ -1,5 +1,12 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, RecordWildCards #-}
-module Data.Graph where
+module Data.Graph
+( Graph(..)
+, Vertex(..)
+, Edge(..)
+, dot
+, Semigroup(..)
+, Semiring(..)
+) where
 
 import Data.Function (on)
 import Data.List (union, unionBy)

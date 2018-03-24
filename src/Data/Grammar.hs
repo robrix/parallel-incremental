@@ -16,7 +16,6 @@ import Data.Higher.Functor.Classes as H
 import Data.Higher.Functor.Foldable
 import qualified Data.Higher.Traversable as H
 import Data.Rec
-import Data.Semiring
 import Data.These
 import Text.Parser.Char
 import Text.Parser.Combinators
