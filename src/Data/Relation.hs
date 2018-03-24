@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFunctor, FlexibleInstances #-}
 module Data.Relation
 ( Relation
 , fromRelation
@@ -39,3 +39,6 @@ instance Monoid (Relation i a) where
 
 instance Semigroup a => Semiring (Relation i a) where
   Relation p1 >< Relation p2 = Relation ((<>) <$> p1 <*> p2)
+
+instance Semigroup i => Unital (Relation i i) where
+  one = fromRelation Just
