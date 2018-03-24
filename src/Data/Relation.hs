@@ -12,6 +12,7 @@ module Data.Relation
 ) where
 
 import Control.Applicative
+import qualified Control.Category as Cat
 import Control.Monad
 import qualified Data.Map as Map
 import Data.Semiring
@@ -54,3 +55,7 @@ instance (Alternative f, Semigroup a) => Semiring (Relation f i a) where
 
 instance (Alternative f, Semigroup i) => Unital (Relation f i i) where
   one = fromRelation pure
+
+instance (Alternative m, Monad m) => Cat.Category (Relation m) where
+  id = Relation pure
+  r2 . r1 = Relation (\ i -> lookup i r1 >>= flip lookup r2)
