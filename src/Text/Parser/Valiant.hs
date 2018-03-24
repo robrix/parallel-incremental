@@ -49,3 +49,10 @@ instance Eq1 BiNF where
     where go (U s1)    (U s2)    = eq s1 s2
           go (B a1 b1) (B a2 b2) = go a1 a2 && go b1 b2
           go _         _         = False
+
+instance Ord1 BiNF where
+  liftCompare compare = go
+    where go (U s1)    (U s2)    = compare s1 s2
+          go (U _)     _         = LT
+          go (B a1 b1) (B a2 b2) = go a1 a2 <> go b1 b2
+          go _         _         = GT
