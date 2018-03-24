@@ -7,7 +7,9 @@ module Data.Relation
 , lookup
 ) where
 
+import Control.Applicative
 import Control.Monad
+import Data.Semigroup
 import Prelude hiding (lookup)
 
 newtype Relation i a = Relation (i -> Maybe a)
@@ -24,3 +26,7 @@ singleton i a = Relation ((*> pure a) . guard . (== i))
 
 lookup :: i -> Relation i a -> Maybe a
 lookup i (Relation m) = m i
+
+
+instance Semigroup (Relation i a) where
+  Relation p1 <> Relation p2 = Relation ((<|>) <$> p1 <*> p2)
