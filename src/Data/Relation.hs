@@ -7,6 +7,7 @@ module Data.Relation
 , singleton
 , lookup
 , related
+, transitiveClosure
 , Semigroup(..)
 , Semiring(..)
 ) where
@@ -14,6 +15,7 @@ module Data.Relation
 import Control.Applicative
 import qualified Control.Category as Cat
 import Control.Monad
+import Data.Function (fix)
 import qualified Data.Map as Map
 import Data.Profunctor
 import Data.Profunctor.Rep
@@ -45,6 +47,9 @@ lookup i (Relation m) = m i
 
 related :: (Foldable f, Eq a) => Relation f i a -> i -> a -> Bool
 related r = flip elem . flip lookup r
+
+transitiveClosure :: (Alternative m, Monad m) => Relation m a a -> Relation m a a
+transitiveClosure rel = fromRelation (fix (\ f i -> let r = lookup i rel in r <|> (r >>= f)))
 
 
 instance Alternative f => Semigroup (Relation f i a) where
